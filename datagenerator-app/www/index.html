@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Data Generator</title>
+
+    <link rel="icon" type="image/svg+xml" href="./resources/bubble-chart-line.svg" />
+    <link rel="stylesheet" href="/lib/halfmoon/css/halfmoon-variables.min.css" />
+    <link rel="stylesheet" href="/lib/remixicon/fonts/remixicon.css" />
+  </head>
+  <body>
+    <!-- Page wrapper -->
+    <div class="page-wrapper with-navbar">
+      <!-- Sticky alerts (toasts), empty container -->
+      <div class="sticky-alerts"></div>
+
+      <!-- Navbar -->
+      <nav class="navbar">
+        <span class="navbar-brand">
+          <i class="ri-bubble-chart-line mr-5"></i>
+          <span>Data Generator</span>
+        </span>
+
+        <form class="form-inline ml-auto">
+          <button id="button_toggleDarkMode" class="btn btn-square" type="button">
+            <i class="ri-moon-line"></i>
+          </button>
+        </form>
+      </nav>
+
+      <!-- Content wrapper -->
+      <div class="content-wrapper">
+        <div class="content">
+          <h2 class="content-title">Konfiguration und Kommandos des Data Generators</h2>
+          <p>
+            Nachfolgend werden alle Informationen zum aktuellen Status des Data Generators, dessen Konfiguration und
+            Kommandos aufgeführt. Über die Schaltflächen kann die automatisierte Erstellung von Bestellungen gestartet
+            bzw. gestoppt werden. Das Daten Modell sieht wie folgt aus:
+          </p>
+
+          <div class="container-fluid">
+            <div class="row">
+              <div class="col-12 col-md-6 d-flex align-items-stretch">
+                <div class="card">
+                  <h2 class="card-title">Status des Data Generator</h2>
+
+                  <span class="d-flex flex-row align-items-center">
+                    <p>Aktueller Status:</p>
+                    <!-- <i class="ri-focus-fill mx-5"></i> -->
+                    <p class="mx-5" id="p_status"></p>
+                    <button id="button_refreshStatus" class="btn btn-square" type="button">
+                      <i class="ri-refresh-line"></i>
+                    </button>
+                  </span>
+
+                  <button class="btn btn-primary btn-rounded btn-lg" id="button_startGenerator" type="button">
+                    Start
+                  </button>
+                  <button class="btn btn-danger btn-rounded btn-lg" id="button_stopGenerator" type="button">
+                    Stop
+                  </button>
+                </div>
+              </div>
+
+              <div class="col-12 col-md-6 d-flex align-items-stretch">
+                <div class="card">
+                  <h2 class="card-title">Konfiguration des Data Generator</h2>
+
+                  <form>
+                    <!--                     <div class="form-row row-eq-spacing-sm">
+                      <div class="col-sm">
+                        <label for="first-name" class="required"
+                          >First name</label
+                        >
+                        <input
+                          type="text"
+                          class="form-control"
+                          id="first-name"
+                          placeholder="First name"
+                          required="required"
+                        />
+                      </div>
+                      <div class="col-sm">
+                        <label for="last-name">Last name</label>
+                        <input
+                          type="text"
+                          class="form-control"
+                          id="last-name"
+                          placeholder="Last name"
+                        />
+                      </div>
+                    </div> -->
+
+                    <div>
+                      <!-- Label -->
+                      <label for="input_eventsPerMinute" class="required"
+                        >Anzahl der durschnittlichen Events pro Minute</label
+                      >
+                      <div class="form-row row-eq-spacing">
+                        <div class="col">
+                          <input
+                            type="text"
+                            id="input_eventsPerMinute"
+                            class="form-control"
+                            placeholder="Events pro Minute"
+                            pattern="[0-9]*"
+                            inputmode="numeric"
+                            required="required"
+                          />
+                          <div class="invalid-feedback d-none" id="error_inputEventsPerMin">
+                            <ul>
+                              <li>Das Feld muss eine Zahl enthalten</li>
+                              <li>Die Zahl muss größer 0 sein</li>
+                            </ul>
+                          </div>
+                          <div class="invalid-feedback d-none" id="error_dataGeneratorRunning">
+                            <ul>
+                              <li>Zum Ändern des Werts muss der Data Generator gestoppt werden</li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Submit button container -->
+                    <div class="text-right">
+                      <input type="button" id="button_saveConfig" class="btn btn-primary" value="Speichern" />
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- JavaScript Files -->
+    <script src="/lib/halfmoon/js/halfmoon.min.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
