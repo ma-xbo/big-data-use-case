@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Web App</title>
+
+    <link rel="icon" type="image/svg+xml" href="./resources/restaurant-2-line.svg" />
+    <link rel="stylesheet" href="/lib/halfmoon/css/halfmoon-variables.min.css" />
+    <link rel="stylesheet" href="/lib/remixicon/fonts/remixicon.css" />
+  </head>
+  <body>
+    <!-- Page wrapper -->
+    <div class="page-wrapper with-navbar">
+      <!-- Sticky alerts (toasts), empty container -->
+      <div class="sticky-alerts"></div>
+
+      <!-- Navbar -->
+      <nav class="navbar">
+        <span class="navbar-brand">
+          <i class="ri-restaurant-2-line"></i>
+          <span>Web App</span>
+        </span>
+        <span class="navbar-text text-monospace">v0.1</span>
+
+        <ul class="navbar-nav d-none d-md-flex">
+          <li class="nav-item">
+            <a class="nav-link">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link">Test</a>
+          </li>
+        </ul>
+
+        <form class="form-inline ml-auto">
+          <button id="button_toggleDarkMode" class="btn btn-square" type="button">
+            <i class="ri-moon-line"></i>
+          </button>
+        </form>
+      </nav>
+
+      <!-- Content wrapper -->
+      <div class="content-wrapper">
+        <div class="content" id="content_home">
+          <h2 class="content-title">Home</h2>
+
+          <div class="container-fluid">
+            <div class="row">
+              <div class="col-12 col-md-6">Test</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- JavaScript Files -->
+    <script src="/lib/halfmoon/js/halfmoon.min.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
