@@ -1,4 +1,9 @@
-# Datagenerator
+# Web App
+
+-> Tutorial: https://dev.to/nburgess/creating-a-react-app-with-react-router-and-an-express-backend-33l3
+
+Die Web App hat einen eigenen Express Server, der zB die Daten aus der MySQL Datenbank ausließt und der Web App bereitstellt. 
+Zudem stellt der Express Server auch die gebuildete React App bereit.
 
 ## Lokales starten der Anwendung
 
@@ -17,9 +22,3 @@ Folgender Befehl muss dazu auf der Kommandozeile eingegeben werden: `npx nodemon
 
 ## Verwendete NPM Pakete
 - Express
-- halfmoon
-    - Responsive front-end Framework
-    - Ähnlich zu Bootstrap
-- remixicon
-    - Icon Set über css Klassen
-    - Beispiel: `<i class="ri-home-line"></i>`
