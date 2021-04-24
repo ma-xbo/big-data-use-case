@@ -1,12 +1,62 @@
 import React from "react";
+import { BrowserRouter as Router, Route, Redirect, Switch, Link } from "react-router-dom";
+
+//import "./App.css";
+import "halfmoon/css/halfmoon-variables.min.css";
+import "remixicon/fonts/remixicon.css";
+
+import ListView from "./views/ListView";
+import PopularView from "./views/PopularView";
 
 function App() {
+  // Import JS library
+  const halfmoon = require("halfmoon");
+  halfmoon.onDOMContentLoaded();
+
   return (
-    <div>
-      <header>
-        <p>Hello World</p>
-      </header>
-    </div>
+    <Router>
+      <div className="App">
+        <div className="page-wrapper with-navbar">
+          <nav className="navbar">
+            <Link className="navbar-brand" to="/">
+              <i class="ri-restaurant-2-line mr-5"></i>
+              <span>Bestellübersicht</span>
+            </Link>
+            <ul className="navbar-nav d-none d-md-flex">
+              <li className="nav-item">
+                <Link className="nav-link" to="/">
+                  Home
+                </Link>
+              </li>
+              <li className="nav-item">
+                <Link className="nav-link" to="/popular">
+                  Popular
+                </Link>
+              </li>
+            </ul>
+            <form className="form-inline d-none d-md-flex ml-auto">
+              <button className="btn btn-square" type="button" onClick={() => halfmoon.toggleDarkMode()}>
+                <i className="ri-moon-line"></i>
+              </button>
+            </form>
+          </nav>
+
+          <div className="content-wrapper">
+            <Switch>
+              <Route exact path="/">
+                <Redirect to="/list" />
+              </Route>
+              <Route path="/list">
+                <ListView />
+              </Route>
+              <Route path="/popular">
+                <PopularView />
+              </Route>
+            </Switch>
+          </div>
+        </div>
+      </div>
+    </Router>
   );
 }
 
