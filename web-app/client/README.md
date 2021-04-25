@@ -4,7 +4,8 @@
 
 Die Anwendung kann mit dem Befehl `npm start` gestartet werden. 
 Der Befehl muss unter dem Pfad `big-data-use-case\web-app\client` eingegeben werden.
-Die Anwendung läuft im 'Development Mode' und kann über [http://localhost:3000](http://localhost:3000) im Browser dargestellt werden.
+Die Anwendung läuft im 'Development Mode' und kann über [http://localhost:5001](http://localhost:5001) im Browser dargestellt werden.
+Der Port der Anwendung im Development Mode kann in der Datei `.env` modifiziert werden.
 
 ## Starten der Anwendung im Production Mode
 Um die Anwendung im 'Production Mode' laufen zu lassen muss zunächst ein 'Production Build' der Anwendung erstellt werden. 
