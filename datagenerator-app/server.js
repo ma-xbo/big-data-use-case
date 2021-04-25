@@ -1,5 +1,6 @@
 const express = require("express");
 const { v4: uuidv4 } = require("uuid");
+const { Kafka } = require("kafkajs");
 const app = express();
 const port = 3000;
 
@@ -79,6 +80,55 @@ app.post("/api/config", function (req, res) {
   } else if (timer != null) {
     res.sendStatus(401);
   }
+});
+
+const kafka = new Kafka({
+  clientId: "tracker-" + Math.floor(Math.random() * 100000),
+  brokers: ["my-cluster-kafka-bootstrap:9092"],
+  retry: {
+    retries: 0,
+  },
+});
+
+const producer = kafka.producer();
+
+// Send tracking message to Kafka
+async function sendTrackingMessage(data) {
+  //Ensure the producer is connected
+  await producer.connect();
+
+  //Send message
+  await producer.send({
+    topic: "tracking-data",
+    messages: [{ value: JSON.stringify(data) }],
+  });
+}
+
+app.get("/api/sendkafka", (req, res) => {
+  console.log("Request: " + "Method=" + req.method + ", URL=" + req.originalUrl);
+
+  const dummy_order_ids = [
+    "61579f07-ff46-4078-af3a-8228f0a294b7",
+    "535bac21-27dd-4ed2-b28b-5c643556f4ba",
+    "38adb785-246b-4efe-94e9-d194fa8c4978",
+  ];
+  const random_index = Math.floor(Math.random() * dummy_order_ids.length);
+
+  // Send the tracking message to Kafka
+  sendTrackingMessage({
+    order_id: dummy_order_ids[random_index],
+    timestamp: Math.floor(new Date() / 1000),
+  })
+    .then(() => {
+      console.log("Sent to kafka");
+      res.sendStatus(200);
+    })
+    .catch((e) => {
+      console.log("Error sending to kafka", e);
+      res.sendStatus(200);
+    });
+
+  console.log("Response: " + "Status=" + res.statusCode);
 });
 
 // Starten der App

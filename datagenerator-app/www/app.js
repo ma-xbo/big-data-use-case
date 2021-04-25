@@ -4,14 +4,13 @@ window.addEventListener("load", (evt) => {
   refreshConfig();
 
   document.getElementById("button_toggleDarkMode").addEventListener("click", toggleDarkMode);
-
   document.getElementById("button_refreshStatus").addEventListener("click", refreshStatus);
-
   document.getElementById("button_startGenerator").addEventListener("click", startDataGenerator);
-
   document.getElementById("button_stopGenerator").addEventListener("click", stopDataGenerator);
-
   document.getElementById("button_saveConfig").addEventListener("click", overrideConfig);
+  document.getElementById("button_sendKafkaEvents1").addEventListener("click", sendKafkaEvents_1);
+  document.getElementById("button_sendKafkaEvents10").addEventListener("click", sendKafkaEvents_10);
+  document.getElementById("button_sendKafkaEvents100").addEventListener("click", sendKafkaEvents_100);
 
   function toggleDarkMode() {
     halfmoon.toggleDarkMode();
@@ -137,5 +136,18 @@ window.addEventListener("load", (evt) => {
       hasDismissButton: true,
       timeShown: 5000,
     });
+  }
+
+  function sendKafkaEvents_1() {
+    const url = "http://localhost:3000/api/sendkafka";
+    fetch(url).then((res) => console.log(res.status));
+  }
+
+  function sendKafkaEvents_10() {
+    for(x=0; x<10; x++) sendKafkaEvents_1();
+  }
+
+  function sendKafkaEvents_100() {
+    for(x=0; x<100; x++) sendKafkaEvents_1();
   }
 });
