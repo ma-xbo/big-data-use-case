@@ -2,6 +2,7 @@ import React from "react";
 
 function CustomDatagrid(props) {
   const { columns, rows } = props;
+  const hrefUrl = "http://localhost:3000/details/";
 
   return (
     <>
@@ -18,7 +19,7 @@ function CustomDatagrid(props) {
             {rows.map((row) => (
               <tr>
                 {columns.map((col) => (
-                  <td>{row[col.key]}</td>
+                  <td>{col.key === "order_id" ? <a href={hrefUrl + row.order_id}>{row[col.key]}</a> : row[col.key]}</td>
                 ))}
               </tr>
             ))}

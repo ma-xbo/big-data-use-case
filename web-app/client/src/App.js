@@ -4,14 +4,15 @@ import { BrowserRouter as Router, Route, Redirect, Switch, Link } from "react-ro
 import "halfmoon/css/halfmoon-variables.min.css";
 import "remixicon/fonts/remixicon.css";
 
-import ListView from "./views/ListView";
+import OrderListView from "./views/OrderListView";
+import OrderDetailsView from "./views/OrderDetailsView";
 import PopularView from "./views/PopularView";
 
 function App() {
   // Import JS library
   const halfmoon = require("halfmoon");
   halfmoon.onDOMContentLoaded();
-  
+
   return (
     <Router>
       <div className="App">
@@ -46,7 +47,10 @@ function App() {
                 <Redirect to="/list" />
               </Route>
               <Route path="/list">
-                <ListView />
+                <OrderListView />
+              </Route>
+              <Route path="/details/:order_id">
+                <OrderDetailsView />
               </Route>
               <Route path="/popular">
                 <PopularView />
