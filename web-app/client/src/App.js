@@ -1,7 +1,6 @@
 import React from "react";
 import { BrowserRouter as Router, Route, Redirect, Switch, Link } from "react-router-dom";
 
-//import "./App.css";
 import "halfmoon/css/halfmoon-variables.min.css";
 import "remixicon/fonts/remixicon.css";
 
@@ -12,7 +11,7 @@ function App() {
   // Import JS library
   const halfmoon = require("halfmoon");
   halfmoon.onDOMContentLoaded();
-
+  
   return (
     <Router>
       <div className="App">
