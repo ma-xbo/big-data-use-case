@@ -18,7 +18,7 @@ function App() {
         <div className="page-wrapper with-navbar">
           <nav className="navbar">
             <Link className="navbar-brand" to="/">
-              <i class="ri-bubble-chart-line mr-5"></i>
+              <i className="ri-bubble-chart-line mr-5"></i>
               <span>Data Generator</span>
             </Link>
             <ul className="navbar-nav d-none d-md-flex">
