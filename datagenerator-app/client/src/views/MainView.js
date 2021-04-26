@@ -6,25 +6,26 @@ import DashboardItemContent from "../components/DashboardItemContent";
 
 function MainView() {
   const [serviceRunning, setServiceRunning] = useState();
-  const [config, setConfig] = useState();
+  const [eventsPerMinute, setEventsPerMinute] = useState(30);
 
   // Initialen Status prüfen
   useEffect(() => {
     checkServiceRunning();
+    getDataGeneratorConfig();
   }, []);
 
   // ------------------------------------------------------------
   // Funktionen
   // ------------------------------------------------------------
 
-  function checkServiceRunning() {
+  async function checkServiceRunning() {
     const url = "http://localhost:3000/api/service/status";
     fetch(url)
       .then((response) => response.json())
       .then((data) => setServiceRunning(data.running));
   }
 
-  function startDataGenerator() {
+  async function startDataGenerator() {
     const url = "http://localhost:3000/api/service/start";
     fetch(url).then(() => {
       const maxTries = 3;
@@ -36,7 +37,7 @@ function MainView() {
     });
   }
 
-  function stopDataGenerator() {
+  async function stopDataGenerator() {
     const url = "http://localhost:3000/api/service/stop";
     fetch(url).then(() => {
       const maxTries = 3;
@@ -48,11 +49,27 @@ function MainView() {
     });
   }
 
-  function getDataGeneratorConfig() {
+  async function getDataGeneratorConfig() {
     const url = "http://localhost:3000/api/service/config";
     fetch(url)
       .then((response) => response.json())
-      .then((data) => setConfig(data));
+      .then((data) => setEventsPerMinute((60 / data.sleepTimeMilliseconds) * 1000));
+  }
+
+  async function postDataGeneratorConfig() {
+    if (Number(eventsPerMinute) > 0) {
+      const data = { eventsPerMinute: eventsPerMinute };
+
+      // Post-Request zum Ändern der Daten des Data Generator
+      const url = "http://localhost:3000/api/service/config";
+      await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+    }
   }
 
   // ------------------------------------------------------------
@@ -108,28 +125,39 @@ function MainView() {
               <div className="col">
                 <input
                   type="text"
+                  value={eventsPerMinute}
+                  onChange={(e) => {
+                    const re = /^[0-9\b]+$/;
+                    if (e.target.value === "" || re.test(e.target.value)) {
+                      setEventsPerMinute(e.target.value);
+                    }
+                  }}
                   className="form-control"
                   placeholder="Events pro Minute"
                   pattern="[0-9]*"
                   inputMode="numeric"
                   required="required"
                 />
-                <div className="invalid-feedback d-none" id="error_inputEventsPerMin">
-                  <ul>
-                    <li>Das Feld muss eine Zahl enthalten</li>
-                    <li>Die Zahl muss größer 0 sein</li>
-                  </ul>
-                </div>
-                <div className="invalid-feedback d-none" id="error_dataGeneratorRunning">
-                  <ul>
-                    <li>Zum Ändern des Werts muss der Data Generator gestoppt werden</li>
-                  </ul>
-                </div>
+                {eventsPerMinute <= 0 && (
+                  <div className="invalid-feedback">
+                    <ul>
+                      <li>Das Feld muss eine Zahl enthalten</li>
+                      <li>Die Zahl muss größer 0 sein</li>
+                    </ul>
+                  </div>
+                )}
+                {serviceRunning && (
+                  <div className="invalid-feedback">
+                    <ul>
+                      <li>Zum Ändern des Werts muss der Data Generator gestoppt werden</li>
+                    </ul>
+                  </div>
+                )}
               </div>
             </div>
 
             <div className="text-right">
-              <input type="button" className="btn btn-primary" value="Speichern" />
+              <input type="button" className="btn btn-primary" value="Speichern" onClick={postDataGeneratorConfig} />
             </div>
           </form>
         </DashboardItemContent>
