@@ -9,10 +9,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "axios": "^0.21.1",
+    "cors": "^2.8.5",
     "express": "^4.17.1",
-    "halfmoon": "^1.1.1",
     "kafkajs": "^1.15.0",
-    "remixicon": "^2.5.0",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
