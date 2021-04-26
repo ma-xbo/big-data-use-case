@@ -5,17 +5,18 @@ FROM node:alpine
 EXPOSE 3000
 
 # Set working dir for consecutive commands
-WORKDIR /src
+WORKDIR /generatorapp
 
 # Add dependencies
-ADD package.json /src/
+ADD package.json /generatorapp/
 RUN npm install
 
 # Copy 'server.js' to directory 'src' in container
-ADD server.js /src/
+ADD server.js /generatorapp/
 
 # Copy directory 'www' to directory 'src' in container
-ADD www /src/www
+ADD server-routes /generatorapp/server-routes
+ADD client/build /generatorapp/client/build
 
 # Set (default) command to execute on startup
-CMD node /src/server.js
+CMD node /generatorapp/server.js
