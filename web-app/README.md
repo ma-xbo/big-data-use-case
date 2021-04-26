@@ -1,9 +1,14 @@
-# Web App
+# Web App Server
 
--> Tutorial: https://dev.to/nburgess/creating-a-react-app-with-react-router-and-an-express-backend-33l3
+Die Web App unterteilt sich in einen Server-Teil und einen Client-Teil. 
+Der Client-Teil dient der Darstellung der Daten und wird durch eine React App realisiert.
+Für weitere Informationen zum Client-Teil der Web App schauen Sie bitte in den Ordner `big-data-use-case\web-app\client`. 
+Dort befindet sich der Source-Code, sowie eine weitere README Datei.
 
-Die Web App hat einen eigenen Express Server, der zB die Daten aus der MySQL Datenbank ausließt und der Web App bereitstellt. 
-Zudem stellt der Express Server auch die gebuildete React App bereit.
+Der Server-Teil der Web App wird mit Hilfe eines Express Servers realisiert und wird nachfolgend beschrieben.
+Der Express Server wird dazu genutzt, um beispielweise aus der MySQL Datenbank auszulesen und diese dem Frontend (Client-Teil) der Web App bereitzustellen. 
+Zudem stellt der Express Server auch das Production Build React App bereit. 
+Die Anwendung kann dann über [http://localhost:5000](http://localhost:5000) im Browser erreicht werden.
 
 ## Lokales starten der Anwendung
 
@@ -22,3 +27,9 @@ Folgender Befehl muss dazu auf der Kommandozeile eingegeben werden: `npx nodemon
 
 ## Verwendete NPM Pakete
 - Express
+- CORS
+
+## Quellen
+- https://expressjs.com/en/starter/hello-world.html
+- https://expressjs.com/en/resources/middleware/cors.html
+- https://dev.to/nburgess/creating-a-react-app-with-react-router-and-an-express-backend-33l3

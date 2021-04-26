@@ -1,21 +1,21 @@
 # Select base image https://hub.docker.com/_/node/
 FROM node:alpine
 
-# Expose port 3000
-EXPOSE 3000
+# Expose port 5000
+EXPOSE 5000
 
 # Set working dir for consecutive commands
-WORKDIR /src
+WORKDIR /webapp
 
 # Add dependencies
-ADD package.json /src/
+ADD package.json /webapp/
 RUN npm install
 
-# Copy 'server.js' to directory 'src' in container
-ADD server.js /src/
+# Copy 'server.js' to directory 'webapp' in container
+ADD server.js /webapp/
 
-# Copy directory 'www' to directory 'src' in container
-ADD www /src/www
+# Copy directory 'client/build' to directory 'webapp' in container
+ADD client/build /webapp/client/build
 
 # Set (default) command to execute on startup
-CMD node /src/server.js
+CMD node /webapp/server.js
