@@ -1,10 +1,63 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import ViewContainer from "../components/ViewContainer";
 import DashboardContainer from "../components/DashboardContainer";
 import DashboardItemText from "../components/DashboardItemText";
 import DashboardItemContent from "../components/DashboardItemContent";
 
 function MainView() {
+  const [serviceRunning, setServiceRunning] = useState();
+  const [config, setConfig] = useState();
+
+  // Initialen Status prüfen
+  useEffect(() => {
+    checkServiceRunning();
+  }, []);
+
+  // ------------------------------------------------------------
+  // Funktionen
+  // ------------------------------------------------------------
+
+  function checkServiceRunning() {
+    const url = "http://localhost:3000/api/service/status";
+    fetch(url)
+      .then((response) => response.json())
+      .then((data) => setServiceRunning(data.running));
+  }
+
+  function startDataGenerator() {
+    const url = "http://localhost:3000/api/service/start";
+    fetch(url).then(() => {
+      const maxTries = 3;
+      for (let index = 0; index < maxTries; index++) {
+        if (serviceRunning === false) {
+          checkServiceRunning();
+        }
+      }
+    });
+  }
+
+  function stopDataGenerator() {
+    const url = "http://localhost:3000/api/service/stop";
+    fetch(url).then(() => {
+      const maxTries = 3;
+      for (let index = 0; index < maxTries; index++) {
+        if (serviceRunning === true) {
+          checkServiceRunning();
+        }
+      }
+    });
+  }
+
+  function getDataGeneratorConfig() {
+    const url = "http://localhost:3000/api/service/config";
+    fetch(url)
+      .then((response) => response.json())
+      .then((data) => setConfig(data));
+  }
+
+  // ------------------------------------------------------------
+  // Return
+  // ------------------------------------------------------------
   return (
     <ViewContainer title="Übersicht des Data Generator">
       <p>
@@ -18,56 +71,56 @@ function MainView() {
         <DashboardItemContent title="Status des Data Generator">
           <span className="d-flex flex-row align-items-center">
             <p>Aktueller Status:</p>
-            <p class="mx-5" id="p_status"></p>
-            <button id="button_refreshStatus" class="btn btn-square" type="button">
-              <i class="ri-refresh-line"></i>
+            {serviceRunning && <p className="mx-5">Aktiv</p>}
+            {!serviceRunning && <p className="mx-5">Nicht aktiv</p>}
+            <button className="btn btn-square" type="button" onClick={checkServiceRunning}>
+              <i className="ri-refresh-line"></i>
             </button>
           </span>
           <span className="w-full d-flex flex-row align-items-center justify-content-around">
-            <button class="btn btn-primary btn-rounded btn-lg" type="button">
+            <button className="btn btn-primary btn-rounded btn-lg" type="button" onClick={startDataGenerator}>
               Start
             </button>
-            <button class="btn btn-danger btn-rounded btn-lg" type="button">
+            <button className="btn btn-danger btn-rounded btn-lg" type="button" onClick={stopDataGenerator}>
               Stop
             </button>
           </span>
         </DashboardItemContent>
 
         <DashboardItemContent title='Erstellen von "Burst" Events'>
-          <button class="btn btn-primary btn-rounded my-5" type="button">
+          <button className="btn btn-primary btn-rounded my-5" type="button">
             Sende 1x Kafka Event
           </button>
-          <button class="btn btn-primary btn-rounded my-5" type="button">
+          <button className="btn btn-primary btn-rounded my-5" type="button">
             Sende 10x Kafka Event
           </button>
-          <button class="btn btn-primary btn-rounded my-5" type="button">
+          <button className="btn btn-primary btn-rounded my-5" type="button">
             Sende 100x Kafka Event
           </button>
         </DashboardItemContent>
 
         <DashboardItemContent title="Konfiguration des Data Generator">
           <form>
-            <label for="input_eventsPerMinute" class="required">
+            <label htmlFor="input_eventsPerMinute" className="required">
               Anzahl der durschnittlichen Events pro Minute
             </label>
-            <div class="form-row row-eq-spacing">
-              <div class="col">
+            <div className="form-row row-eq-spacing">
+              <div className="col">
                 <input
                   type="text"
-                  id="input_eventsPerMinute"
-                  class="form-control"
+                  className="form-control"
                   placeholder="Events pro Minute"
                   pattern="[0-9]*"
-                  inputmode="numeric"
+                  inputMode="numeric"
                   required="required"
                 />
-                <div class="invalid-feedback d-none" id="error_inputEventsPerMin">
+                <div className="invalid-feedback d-none" id="error_inputEventsPerMin">
                   <ul>
                     <li>Das Feld muss eine Zahl enthalten</li>
                     <li>Die Zahl muss größer 0 sein</li>
                   </ul>
                 </div>
-                <div class="invalid-feedback d-none" id="error_dataGeneratorRunning">
+                <div className="invalid-feedback d-none" id="error_dataGeneratorRunning">
                   <ul>
                     <li>Zum Ändern des Werts muss der Data Generator gestoppt werden</li>
                   </ul>
@@ -75,14 +128,12 @@ function MainView() {
               </div>
             </div>
 
-            <div class="text-right">
-              <input type="button" id="button_saveConfig" class="btn btn-primary" value="Speichern" />
+            <div className="text-right">
+              <input type="button" className="btn btn-primary" value="Speichern" />
             </div>
           </form>
         </DashboardItemContent>
       </DashboardContainer>
-
-      
     </ViewContainer>
   );
 }
