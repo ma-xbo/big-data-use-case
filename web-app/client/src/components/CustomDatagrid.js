@@ -2,7 +2,7 @@ import React from "react";
 
 function CustomDatagrid(props) {
   const { columns, rows } = props;
-  const hrefUrl = "http://localhost:3000/details/";
+  const hrefUrl = "http://localhost:5000/details/";
 
   return (
     <>
