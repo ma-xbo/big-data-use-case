@@ -6,9 +6,6 @@ metadata:
 
 build:
   artifacts:
-    - image: farberg/popular-slides
-      context: web-app
-
     - image: farberg/popular-slides-spark
       context: spark-app
 

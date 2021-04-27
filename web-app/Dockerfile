@@ -13,6 +13,7 @@ RUN npm install
 
 # Copy 'server.js' to directory 'webapp' in container
 ADD server.js /webapp/
+ADD router.js /webapp/
 
 # Copy directory 'client/build' to directory 'webapp' in container
 ADD client/build /webapp/client/build

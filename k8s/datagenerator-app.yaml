@@ -1,0 +1,39 @@
+#Begin: Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: datagenerator-app
+  labels:
+    app: datagenerator-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: datagenerator-app
+  template:
+    metadata:
+      labels:
+        app: datagenerator-app
+    spec:
+      containers:
+        - name: datagenerator-app
+          image: datagenerator-app:latest 
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 3000
+
+---
+#Begin: Service
+kind: Service
+apiVersion: v1
+metadata:
+  name: datagenerator-app-service
+spec:
+  selector:
+    app: datagenerator-app
+  ports:
+    - name: datagenerator
+      protocol: TCP
+      port: 3000
+      targetPort: 3000
+#End: Service

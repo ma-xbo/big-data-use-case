@@ -1,0 +1,39 @@
+#Begin: Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-app
+  labels:
+    app: web-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: web-app
+  template:
+    metadata:
+      labels:
+        app: web-app
+    spec:
+      containers:
+        - name: web-app
+          image: web-app:latest 
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 5000
+
+---
+#Begin: Service
+kind: Service
+apiVersion: v1
+metadata:
+  name: web-app-service
+spec:
+  selector:
+    app: web-app
+  ports:
+    - name: web-app
+      protocol: TCP
+      port: 5000
+      targetPort: 5000
+#End: Service
