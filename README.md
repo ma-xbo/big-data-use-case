@@ -27,7 +27,6 @@ Die nachfolgenden Schritte müssen einmalig durchgeführt werden:
 ```bash
 helm repo add strimzi http://strimzi.io/charts/
 helm install my-kafka-operator strimzi/strimzi-kafka-operator
-kubectl apply -f https://farberg.de/talks/big-data/code/helm-kafka-operator/kafka-cluster-def.yaml
 ```
 
 3. Hadoop cluster with YARN (for checkpointing)
