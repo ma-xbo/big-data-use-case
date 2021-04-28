@@ -72,6 +72,16 @@ function MainView() {
     }
   }
 
+  async function createBurstEvent() {
+    const url = "http://localhost:3000/api/orders/addorderkafka";
+    fetch(url)
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Kafka topic was sent with following data:");
+        console.log(data);
+      });
+  }
+
   // ------------------------------------------------------------
   // Return
   // ------------------------------------------------------------
@@ -105,13 +115,33 @@ function MainView() {
         </DashboardItemContent>
 
         <DashboardItemContent title='Erstellen von "Burst" Events'>
-          <button className="btn btn-primary btn-rounded my-5" type="button">
+          <button className="btn btn-primary btn-rounded my-5" type="button" onClick={createBurstEvent}>
             Sende 1x Kafka Event
           </button>
-          <button className="btn btn-primary btn-rounded my-5" type="button">
+          <button
+            className="btn btn-primary btn-rounded my-5"
+            type="button"
+            onClick={() => {
+              for (let index = 0; index < 10; index++) {
+                setTimeout(() => {
+                  createBurstEvent();
+                }, 50);
+              }
+            }}
+          >
             Sende 10x Kafka Event
           </button>
-          <button className="btn btn-primary btn-rounded my-5" type="button">
+          <button
+            className="btn btn-primary btn-rounded my-5"
+            type="button"
+            onClick={() => {
+              for (let index = 0; index < 100; index++) {
+                setTimeout(() => {
+                  createBurstEvent();
+                }, 50);
+              }
+            }}
+          >
             Sende 100x Kafka Event
           </button>
         </DashboardItemContent>
