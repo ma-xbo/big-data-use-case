@@ -9,7 +9,7 @@ const port = 5000;
 // Aktivieren von CORS für die React App auf Port 3000
 // Die React Build Version läuft über Port 5000 und muss nicht über CORS freigegeben werden
 const corsOptions = {
-  origin: "http://localhost:5000",
+  origin: "http://localhost:5001",
   optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
 };
 app.use(cors(corsOptions));
