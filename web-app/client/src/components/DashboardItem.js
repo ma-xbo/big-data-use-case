@@ -1,13 +1,13 @@
 import React from "react";
 
 function DashboardItem(props) {
-  const { title, text } = props;
+  const { description, value } = props;
 
   return (
-    <div class="col-6 col-xl-3">
-      <div class="card">
-        <h2 class="card-title">{title}</h2>
-        <div>{text}</div>
+    <div className="col-6 col-xl-3">
+      <div className="card p-15">
+        <div className="text-center font-size-24 font-weight-bold">{value}</div>
+        <div className="text-center font-size-16">{description}</div>
       </div>
     </div>
   );

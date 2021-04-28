@@ -8,11 +8,14 @@ function OrderListView() {
   const [data, setData] = useState();
 
   // fetch orders
-  useEffect(async () => {
-    const url = "http://localhost:5000/api/orders";
-    fetch(url)
-      .then((response) => response.json())
-      .then((data) => setData(data));
+  useEffect(() => {
+    async function fetchData() {
+      const url = "http://localhost:5000/api/orders";
+      await fetch(url)
+        .then((response) => response.json())
+        .then((data) => setData(data));
+    }
+    fetchData();
   }, []);
 
   const columns = [
@@ -28,8 +31,8 @@ function OrderListView() {
       {data && (
         <div className="container-fluid">
           <DashboardContainer>
-            <DashboardItem title="Anzahl Bestellungen" text={data.length} />
-            <DashboardItem title="Anzahl Bestellungen2" text={data.length} />
+            <DashboardItem description="Anzahl Bestellungen" value={data.length} />
+            <DashboardItem description="Anzahl Bestellungen2" value={data.length} />
           </DashboardContainer>
           <CustomDatagrid columns={columns} rows={data} />
         </div>
