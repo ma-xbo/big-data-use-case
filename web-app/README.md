@@ -21,9 +21,10 @@ Nachdem das Paket installiert wurde kann das Paket eingesetzt werden.
 Folgender Befehl muss dazu auf der Kommandozeile eingegeben werden: `npx nodemon server.js`
 
 ## Verwendung als Docker Container
-
+- Installieren der benötigten Pakete im Order `big-data-use-case\web-app` und `big-data-use-case\web-app\client` mit dem Befehl `npm install`
+- Builden der React App im Ordner `big-data-use-case\web-app\client` mit dem Befehl `npm run build`
 - Befehl zum Erstellen des Containers: `docker build -t web-app:latest .`
-- Befehl zum Starten des Containers: `docker run --rm -ti -p 3001:3001 --name node-web-app web-app`
+- Befehl zum Starten des Containers: `docker run --rm -ti -p 5000:5000 --name node-web-app web-app`
 
 ## Verwendete NPM Pakete
 - Express

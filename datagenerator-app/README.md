@@ -1,6 +1,6 @@
-# Datagenerator
+# Data Generator Server
 
-Datenstruktur
+Datenstruktur für Bestellungen:
 
 ```javascript
 {
@@ -25,21 +25,18 @@ Folgender Befehl muss dazu auf der Kommandozeile eingegeben werden: `npx nodemon
 
 ## Verwendung als Docker Container
 
+- Installieren der benötigten Pakete im Order `big-data-use-case\datagenerator-app` und `big-data-use-case\datagenerator-app\client` mit dem Befehl `npm install`
+- Builden der React App im Ordner `big-data-use-case\datagenerator-app\client` mit dem Befehl `npm run build`
 - Befehl zum Erstellen des Containers: `docker build -t datagenerator-app:latest .`
 - Befehl zum Starten des Containers: `docker run --rm -ti -p 3000:3000 --name node-data-generator datagenerator-app`
 
 ## Verwendete NPM Pakete
 
 - Express
-- halfmoon
-  - Responsive front-end Framework
-  - Ähnlich zu Bootstrap
-- remixicon
-  - Icon Set über css Klassen
-  - Beispiel: `<i class="ri-home-line"></i>`
+- CORS
 - uuid
   - Erstellen von UUID's
-  - Das Format einer UUID sieht wie folgt aus: `7bff4110-dbec-4968-82ab-81c855961abc`
+  - Beispiel einer UUID: `7bff4110-dbec-4968-82ab-81c855961abc`
 
 ## Quellen:
 
