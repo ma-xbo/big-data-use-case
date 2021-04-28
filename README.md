@@ -1,13 +1,12 @@
 # Beschreibung Big Data Use Case
 
-## Installation von Software
+## Prerequisite: Installation von Docker, Minikube, etc.
 
-Die nachfolgenden Schritte müssen einmalig durchgeführt werden:
+Die nachfolgenden Schritte müssen einmalig durchgeführt werden, um das Projekt auf einem Windows Rechner zum Laufen zu bringen:
 
-- Installation Docker (durch Docker Desktop Installationsdatei) -> `docker`
+- Installation Docker (durch Installationsdatei von [Docker Desktop](https://www.docker.com/products/docker-desktop)) -> `docker`
 - Installation minikube (durch Minikube Installationsdatei) -> `minikube`, `kubectl`
-- Installation chocolatey = optional (durch PowerShell Skript) -> `choco`
-- Installation helm (mit chocolatey über den Befehl `choco install kubernetes-helm`) -> `helm`
+- Installation helm -> `helm`
     - Herunterladen der benötigten Dateien unter https://github.com/helm/helm/releases
     - Entpacken der ZIP Datei
     - Kopieren der `helm.exe` in `%USERPROFILE%\AppData\Local\Microsoft\WindowsApps`
@@ -16,7 +15,7 @@ Die nachfolgenden Schritte müssen einmalig durchgeführt werden:
     - Umbennen der Datei in `skaffold.exe` 
     - Kopieren der Datei in `%USERPROFILE%\AppData\Local\Microsoft\WindowsApps`
 
-## Starten des Use Case
+## Erstmaliges Starten des Use Case
 
 1. Starten von Minikube 
     - Starten von Minikube mit Standardwerten: `minikube start` 
@@ -39,16 +38,37 @@ helm install --namespace=default --set hdfs.dataNode.replicas=1 --set yarn.nodeM
 4. Starten der Anwendung
     - `skaffold dev`
 
-### Weiterleiten des Ports
+Nachdem der use Case ein mal aufgebaut wurde, müssen nicht alle Schritte erneut durchlaufen werden. Wie der Use Case in den darauffolgenden Malen gestartet werden kann, ist nachfolgend beschrieben.
 
+## Wiederholtes Starten des Use Case
+
+Das wiederholte Starten des Use Case geht deutlich schneller, als das initiale Starten. Dazu müssen die folgenden Schritte beachtet sein. 
+
+1. Starten von Minikube 
+    - Starten von Minikube mit mehr RAM: `minikube --memory 8192 --cpus 4 --driver=docker start`
+
+2. Starten der Anwendung
+    - `skaffold dev`
+
+## Prüfende Schritte
+
+Sobald das Minikube Cluster läuft, sollten die folgenden Schritte geprüft werden:
+- Laufen alle Pods, die für den Use Case benötigt werden? -> `kubectl get all`
+- Kann von Außen auf den Data Generator Pod zugegriffen werden? -> Weiterleitung des Ports oder Ingress
+- Kann von Außen auf den Web App Pod zugegriffen werden? -> Weiterleitung des Ports oder Ingress
+
+### Weiterleiten des Ports
+- TODO: `kubectl port-forward service/*`
 
 ### Aktivieren des Ingress Addons (Gibt Fehlermeldung)
 - Verwenden des Befhels: `minikube addons enable ingress` -> Funktioniert nur bei Linux
 - `minikube tunnel`
-- `kubectl port-forward service/*`
+
 
 ## Befehle zum Managen des Clusters
-Kommandos: https://minikube.sigs.k8s.io/docs/start/
+Eine Übersicht aller Kommandos zum Managen des Minikube Clusters finden Sie unter: https://minikube.sigs.k8s.io/docs/start/
+
+Nachfolgend sind häufig verwendete Kommandos aufgelistet:
 - `kubectl get all`
 - `kubectl get ingress`
 - `kubectl describe service/popular-slides-service`
