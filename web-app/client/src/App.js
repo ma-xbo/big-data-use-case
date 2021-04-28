@@ -19,7 +19,7 @@ function App() {
         <div className="page-wrapper with-navbar">
           <nav className="navbar">
             <Link className="navbar-brand" to="/">
-              <i class="ri-restaurant-2-line mr-5"></i>
+              <i className="ri-restaurant-2-line mr-5"></i>
               <span>Bestellübersicht</span>
             </Link>
             <ul className="navbar-nav d-none d-md-flex">

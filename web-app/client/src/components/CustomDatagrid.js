@@ -7,19 +7,21 @@ function CustomDatagrid(props) {
   return (
     <>
       {rows && (
-        <table class="table table-hover">
+        <table className="table table-hover">
           <thead>
             <tr>
               {columns.map((col) => (
-                <th>{col.name}</th>
+                <th key={col.key}>{col.name}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             {rows.map((row) => (
-              <tr>
+              <tr key={row.order_id}>
                 {columns.map((col) => (
-                  <td>{col.key === "order_id" ? <a href={hrefUrl + row.order_id}>{row[col.key]}</a> : row[col.key]}</td>
+                  <td key={col.key + "_" + row.order_id}>
+                    {col.key === "order_id" ? <a href={hrefUrl + row.order_id}>{row[col.key]}</a> : row[col.key]}
+                  </td>
                 ))}
               </tr>
             ))}
