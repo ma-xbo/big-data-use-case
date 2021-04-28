@@ -13,13 +13,18 @@ function OrderListView() {
       const url = "http://localhost:5000/api/orders";
       await fetch(url)
         .then((response) => response.json())
-        .then((data) => setData(data));
+        .then((data) => {
+          data.map((row) => {
+            row.dish_price = row.dish_price.toFixed(2) + "€";
+            row.timestamp = new Date(row.timestamp).toLocaleString();
+          });
+          setData(data);
+        });
     }
     fetchData();
   }, []);
 
   const columns = [
-    { key: "order_id", name: "ID" },
     { key: "dish_name", name: "Name" },
     { key: "dish_price", name: "Preis" },
     { key: "store_name", name: "Geschäft" },
@@ -32,9 +37,9 @@ function OrderListView() {
         <div className="container-fluid">
           <DashboardContainer>
             <DashboardItem description="Anzahl Bestellungen" value={data.length} />
-            <DashboardItem description="Anzahl Bestellungen2" value={data.length} />
+            <DashboardItem description="Durchschnittlicher Preis" value={data.length} />
           </DashboardContainer>
-          <CustomDatagrid columns={columns} rows={data} />
+          <CustomDatagrid columns={columns} rows={data} linkKey="dish_name" />
         </div>
       )}
       {!data && <p>Keine Daten vorhanden</p>}
