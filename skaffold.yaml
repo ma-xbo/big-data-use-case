@@ -9,6 +9,12 @@ build:
     - image: farberg/popular-slides-spark
       context: spark-app
 
+    - image: web-app
+      context: web-app
+
+    - image: datagenerator-app
+      context: datagenerator-app
+
 deploy:
   kubectl:
     manifests:
