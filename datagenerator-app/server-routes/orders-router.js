@@ -68,10 +68,9 @@ router.get("/addorderkafka", async (req, res) => {
   };
 
   // Send the tracking message to Kafka
-  sendTrackingMessage({
-    order_id: order.order_id,
-    timestamp: order.timestamp,
-  })
+  sendTrackingMessage(
+	  order
+    )
     .then(() => {
       console.log("Sent to kafka");
       res.send(order);
