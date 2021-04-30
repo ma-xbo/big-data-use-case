@@ -45,7 +45,7 @@ router.get("/addorder", async (req, res) => {
     order_id: uuidv4(),
     store_id: stores[Math.floor(Math.random() * stores.length)].store_id,
     dish_id: dishes[Math.floor(Math.random() * dishes.length)].dish_id,
-    timestamp: new Date().toISOString(),
+    timestamp: Math.floor(new Date() / 1000),
   };
 
   res.send(order);
@@ -64,7 +64,7 @@ router.get("/addorderkafka", async (req, res) => {
     order_id: uuidv4(),
     store_id: stores[Math.floor(Math.random() * stores.length)].store_id,
     dish_id: dishes[Math.floor(Math.random() * dishes.length)].dish_id,
-    timestamp: new Date().toISOString(),
+    timestamp: Math.floor(new Date() / 1000),
   };
 
   // Send the tracking message to Kafka

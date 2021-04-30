@@ -28,8 +28,6 @@ kafkaMessages = spark \
     .option("startingOffsets", "earliest") \
     .load()
 
-# TODO: Check that subscription topic-name is still correct
-
 # Define schema of tracking data
 trackingMessageSchema = StructType() \
     .add("dish_id", StringType()) \
