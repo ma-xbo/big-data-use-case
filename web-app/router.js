@@ -56,26 +56,31 @@ const orders = [
 
 // Zurückgeben aller Bestellungen
 router.get("/orders", (req, res) => {
-  console.log("Request: " + "Method=" + req.method + ", URL=" + req.originalUrl);
+  //TODO: Daten aus Datenbank darstellen
+  //Datenbankabfrage
 
+  //Zurückgeben der Dummy-Daten
   res.json(orders);
 
-  console.log("Response: " + "Status=" + res.statusCode);
+  console.log(
+    "Request: " + "Method=" + req.method + ", URL=" + req.originalUrl + "; Response: " + "Status=" + res.statusCode
+  );
 });
 
 // Zurückgeben einer bestimmten Bestellung
 router.get("/orders/:order_id", (req, res) => {
-  console.log("Request: " + "Method=" + req.method + ", URL=" + req.originalUrl);
   const orderId = req.params.order_id;
 
   for (let index = 0; index < orders.length; index++) {
     if (orders[index].order_id === orderId) {
-      console.log(orders[index])
+      console.log(orders[index]);
       res.json(orders[index]);
     }
   }
 
-  console.log("Response: " + "Status=" + res.statusCode);
+  console.log(
+    "Request: " + "Method=" + req.method + ", URL=" + req.originalUrl + "; Response: " + "Status=" + res.statusCode
+  );
 });
 
 module.exports = router;

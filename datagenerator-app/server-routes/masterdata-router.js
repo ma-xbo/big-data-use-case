@@ -15,8 +15,6 @@ const router = express.Router();
 
 // Ausgeben der in der Datenbank vorhandenen Gerichte
 router.get("/dishes", (req, res) => {
-  console.log("Request: " + "Method=" + req.method + ", URL=" + req.originalUrl);
-
   //TODO: Daten aus DB auslesen
   //Alternativ werden aktuell Dummy Daten genutzt
   const dummyDishes = [
@@ -39,13 +37,13 @@ router.get("/dishes", (req, res) => {
 
   res.send(dummyDishes);
 
-  console.log("Response: " + "Status=" + res.statusCode);
+  console.log(
+    "Request: " + "Method=" + req.method + ", URL=" + req.originalUrl + "; Response: " + "Status=" + res.statusCode
+  );
 });
 
 // Ausgeben der in der Datenbank vorhandenen Restaurants
 router.get("/stores", (req, res) => {
-  console.log("Request: " + "Method=" + req.method + ", URL=" + req.originalUrl);
-
   //TODO: Daten aus DB auslesen
   //Alternativ werden aktuell Dummy Daten genutzt
   const dummyStores = [
@@ -74,7 +72,9 @@ router.get("/stores", (req, res) => {
 
   res.send(dummyStores);
 
-  console.log("Response: " + "Status=" + res.statusCode);
+  console.log(
+    "Request: " + "Method=" + req.method + ", URL=" + req.originalUrl + "; Response: " + "Status=" + res.statusCode
+  );
 });
 
 module.exports = router;

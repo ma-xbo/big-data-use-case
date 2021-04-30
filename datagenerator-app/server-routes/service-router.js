@@ -25,6 +25,10 @@ async function randomData() {
 router.get("/start", (req, res) => {
   timer = setInterval(randomData, sleepTimeMilliseconds);
   res.send("Starting to generate data");
+
+  console.log(
+    "Request: " + "Method=" + req.method + ", URL=" + req.originalUrl + "; Response: " + "Status=" + res.statusCode
+  );
 });
 
 // Stoppen des Data Generator
@@ -32,6 +36,10 @@ router.get("/stop", (req, res) => {
   clearInterval(timer);
   timer = null;
   res.send("Stopping to generate data");
+
+  console.log(
+    "Request: " + "Method=" + req.method + ", URL=" + req.originalUrl + "; Response: " + "Status=" + res.statusCode
+  );
 });
 
 // Ausgeben des Status des Data Generator
@@ -40,6 +48,10 @@ router.get("/status", (req, res) => {
     running: timer ? true : false,
   };
   res.send(statusObj);
+
+  console.log(
+    "Request: " + "Method=" + req.method + ", URL=" + req.originalUrl + "; Response: " + "Status=" + res.statusCode
+  );
 });
 
 // Ausgeben des Konfiguration des Data Generator
@@ -48,12 +60,14 @@ router.get("/config", (req, res) => {
     sleepTimeMilliseconds: sleepTimeMilliseconds,
   };
   res.send(configObj);
+
+  console.log(
+    "Request: " + "Method=" + req.method + ", URL=" + req.originalUrl + "; Response: " + "Status=" + res.statusCode
+  );
 });
 
 // Ändern der Konfiguration des Data Generator
 router.post("/config", function (req, res) {
-  console.log("Request: " + "Method=" + req.method + ", URL=" + req.originalUrl);
-
   if (timer === null) {
     // Anpassen der Einstellung
     const eventsPerMinute = req.body.eventsPerMinute;
@@ -62,6 +76,10 @@ router.post("/config", function (req, res) {
   } else if (timer != null) {
     res.sendStatus(401);
   }
+
+  console.log(
+    "Request: " + "Method=" + req.method + ", URL=" + req.originalUrl + "; Response: " + "Status=" + res.statusCode
+  );
 });
 
 module.exports = router;
