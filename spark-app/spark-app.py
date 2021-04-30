@@ -2,6 +2,7 @@ from pyspark.sql import SparkSession
 from pyspark.sql.functions import *
 from pyspark.sql.types import IntegerType, StringType, StructType, TimestampType
 import mysqlx
+import logging as log
 
 dbOptions = {"host": "my-app-mysql-service", 'port': 33060, "user": "root", "password": "mysecretpw"}
 dbSchema = 'popular'
@@ -27,10 +28,17 @@ kafkaMessages = spark \
     .option("startingOffsets", "earliest") \
     .load()
 
+# TODO: Check that subscription topic-name is still correct
+
 # Define schema of tracking data
 trackingMessageSchema = StructType() \
-    .add("mission", StringType()) \
+    .add("dish_id", StringType()) \
+    .add("store_id", StringType()) \
+    .add("order_id", StringType()) \
     .add("timestamp", IntegerType())
+
+# TODO: Check schema when finalized in data-generator
+
 
 # Example Part 3
 # Convert value: binary -> JSON -> fields + parsed timestamp
@@ -49,23 +57,59 @@ trackingMessages = kafkaMessages.select(
     # Select all JSON fields
     column("json.*")
 ) \
-    .withColumnRenamed('json.mission', 'mission') \
+    .withColumnRenamed('json.dish_id', 'dish_id') \
+    .withColumnRenamed('json.store_id', 'store_id') \
+    .withColumnRenamed('json.order_id', 'order_id') \
     .withWatermark("parsed_timestamp", windowDuration)
 
+# TODO: Check schema when finalized in data-generator
+
 # Example Part 4
-# Compute most popular slides
-popular = trackingMessages.groupBy(
+# Compute most popular dishes by count
+dish_count = trackingMessages.groupBy(
     window(
         column("parsed_timestamp"),
         windowDuration,
         slidingDuration
     ),
-    column("mission")
-).count().withColumnRenamed('count', 'views')
+    column("dish_id")
+).count().withColumnRenamed('count', 'dish_orders')
+
+## Compute most popular dishes by revenue
+#dish_revenue = trackingMessages.groupBy(
+    #window(
+        #column("parsed_timestamp"),
+        #windowDuration,
+        #slidingDuration
+    #),
+    #column("dish_id")
+#).sum().withColumnRenamed('sum', 'dish_revenue')
+#
+## Compute most popular stores by count
+#store_count = trackingMessages.groupBy(
+    #window(
+        #column("parsed_timestamp"),
+        #windowDuration,
+        #slidingDuration
+    #),
+    #column("store_id")
+#).count().withColumnRenamed('count', 'store_orders')
+#
+## Compute most popular stores by revenue
+#store_revenue = trackingMessages.groupBy(
+    #window(
+        #column("parsed_timestamp"),
+        #windowDuration,
+        #slidingDuration
+    #),
+    #column("store_id")
+#).count().withColumnRenamed('count', 'store_revenue')
+#
+# TODO: implement double agg. on both stores and dishes?
 
 # Example Part 5
 # Start running the query; print running counts to the console
-consoleDump = popular \
+consoleDump = dish_count \
     .writeStream \
     .trigger(processingTime=slidingDuration) \
     .outputMode("update") \
@@ -73,19 +117,41 @@ consoleDump = popular \
     .option("truncate", "false") \
     .start()
 
+#consoleDump = dish_revenue \
+    #.writeStream \
+    #.trigger(processingTime=slidingDuration) \
+    #.outputMode("update") \
+    #.format("console") \
+    #.option("truncate", "false") \
+    #.start()
+#
+#consoleDump = store_count \
+    #.writeStream \
+    #.trigger(processingTime=slidingDuration) \
+    #.outputMode("update") \
+    #.format("console") \
+    #.option("truncate", "false") \
+    #.start()
+#
+#consoleDump = store_revenue \
+    #.writeStream \
+    #.trigger(processingTime=slidingDuration) \
+    #.outputMode("update") \
+    #.format("console") \
+    #.option("truncate", "false") \
+    #.start()
+
 # Example Part 6
-
-
 def saveToDatabase(batchDataframe, batchId):
     # Define function to save a dataframe to mysql
     def save_to_db(iterator):
         # Connect to database and use schema
         session = mysqlx.get_session(dbOptions)
-        session.sql("USE popular").execute()
+        session.sql("USE popular").execute() # TODO: Make sure schema name is still correct
 
         for row in iterator:
             # Run upsert (insert or update existing)
-            sql = session.sql("INSERT INTO popular "
+            sql = session.sql("INSERT INTO popular " # TODO: Desicde on table structure and jtherefore results layout: Seperate views for revenue and count or both in one with order-by in html?
                               "(mission, count) VALUES (?, ?) "
                               "ON DUPLICATE KEY UPDATE count=?")
             sql.bind(row.mission, row.views, row.views).execute()
@@ -96,13 +162,11 @@ def saveToDatabase(batchDataframe, batchId):
     batchDataframe.foreachPartition(save_to_db)
 
 # Example Part 7
-
-
-dbInsertStream = popular.writeStream \
-    .trigger(processingTime=slidingDuration) \
-    .outputMode("update") \
-    .foreachBatch(saveToDatabase) \
-    .start()
-
+#dbInsertStream = popular.writeStream \
+    #.trigger(processingTime=slidingDuration) \
+    #.outputMode("update") \
+    #.foreachBatch(saveToDatabase) \
+    #.start()
+#
 # Wait for termination
 spark.streams.awaitAnyTermination()
