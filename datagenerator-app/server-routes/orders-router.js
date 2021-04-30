@@ -38,8 +38,6 @@ async function sendTrackingMessage(data) {
 
 // Erstellen eines neuen Events (wird von Data Generator Service aufgerufen)
 router.get("/addorder", async (req, res) => {
-  console.log("Request: Method=" + req.method + ", URL=" + req.originalUrl);
-
   const stores = (await axios.get("http://localhost:3000/api/masterdata/stores")).data;
   const dishes = (await axios.get("http://localhost:3000/api/masterdata/dishes")).data;
 
@@ -51,12 +49,14 @@ router.get("/addorder", async (req, res) => {
   };
 
   res.send(order);
+
+  console.log(
+    "Request: " + "Method=" + req.method + ", URL=" + req.originalUrl + "; Response: " + "Status=" + res.statusCode
+  );
 });
 
 // Temporär zum Erstellen einer Kafka Meldung
 router.get("/addorderkafka", async (req, res) => {
-  console.log("Request: Method=" + req.method + ", URL=" + req.originalUrl);
-
   const stores = (await axios.get("http://localhost:3000/api/masterdata/stores")).data;
   const dishes = (await axios.get("http://localhost:3000/api/masterdata/dishes")).data;
 
@@ -74,14 +74,16 @@ router.get("/addorderkafka", async (req, res) => {
   })
     .then(() => {
       console.log("Sent to kafka");
-      res.sendStatus(200);
+      res.send(order);
     })
     .catch((e) => {
       console.log("Error sending to kafka", e);
-      res.sendStatus(200);
+      res.sendStatus(500);
     });
 
-  res.send(order);
+  console.log(
+    "Request: " + "Method=" + req.method + ", URL=" + req.originalUrl + "; Response: " + "Status=" + res.statusCode
+  );
 });
 
 module.exports = router;
