@@ -34,9 +34,14 @@ helm install my-kafka-operator strimzi/strimzi-kafka-operator
 helm repo add stable https://charts.helm.sh/stable
 helm install --namespace=default --set hdfs.dataNode.replicas=1 --set yarn.nodeManager.replicas=1 --set hdfs.webhdfs.enabled=true my-hadoop-cluster stable/hadoop
 ```
-
-4. Starten der Anwendung
-    - `skaffold dev`
+4. Builden der React Client
+    - Terminal im Ordner `big-data-use-case\datagenerator-app\client` starten
+    - React Client App mit dem Befehl `npm run build` builden
+    - Terminal im Ordner `big-data-use-case\web-app\client` starten
+    - React Client App mit dem Befehl `npm run build` builden
+    
+5. Starten der Anwendung
+    - Befehl: `skaffold dev`
 
 Nachdem der use Case ein mal aufgebaut wurde, müssen nicht alle Schritte erneut durchlaufen werden. Wie der Use Case in den darauffolgenden Malen gestartet werden kann, ist nachfolgend beschrieben.
 
@@ -58,7 +63,8 @@ Sobald das Minikube Cluster läuft, sollten die folgenden Schritte geprüft werd
 - Kann von Außen auf den Web App Pod zugegriffen werden? -> Weiterleitung des Ports oder Ingress
 
 ### Weiterleiten des Ports
-- TODO: `kubectl port-forward service/*`
+- Erreichen der Web App über den localhost: `kubectl port-forward service/web-app-service 5000:5000`
+- Erreichen des Data Generator über den localhost: `kubectl port-forward service/datagenerator-app-service 3000:3000`
 
 ### Aktivieren des Ingress Addons (Gibt Fehlermeldung)
 - Verwenden des Befhels: `minikube addons enable ingress` -> Funktioniert nur bei Linux
