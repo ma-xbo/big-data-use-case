@@ -80,6 +80,7 @@ spec:
               value: "popular"
           ports:
             - containerPort: 33060
+            - containerPort: 3306
 
 ---
 #Begin: Service
@@ -95,4 +96,8 @@ spec:
       protocol: TCP
       port: 33060
       targetPort: 33060
+    - name: mysql-standard
+      protocol: TCP
+      port: 3306
+      targetPort: 3306
 #End: Service
