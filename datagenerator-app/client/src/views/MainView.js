@@ -7,6 +7,7 @@ import DashboardItemContent from "../components/DashboardItemContent";
 function MainView() {
   const [serviceRunning, setServiceRunning] = useState();
   const [eventsPerMinute, setEventsPerMinute] = useState(30);
+  const [dataArray, setDataArray] = useState([]);
 
   // Initialen Status prüfen
   useEffect(() => {
@@ -77,7 +78,7 @@ function MainView() {
     fetch(url)
       .then((response) => response.json())
       .then((data) => {
-        console.log("Kafka topic was sent with following data:");
+        setDataArray((oldArray) => [...oldArray, data]);
         console.log(data);
       });
   }
@@ -94,7 +95,6 @@ function MainView() {
       </p>
 
       <DashboardContainer>
-        <DashboardItemText title="Dummy" text="Test" />
         <DashboardItemContent title="Status des Data Generator">
           <span className="d-flex flex-row align-items-center">
             <p>Aktueller Status:</p>
@@ -112,38 +112,6 @@ function MainView() {
               Stop
             </button>
           </span>
-        </DashboardItemContent>
-
-        <DashboardItemContent title='Erstellen von "Burst" Events'>
-          <button className="btn btn-primary btn-rounded my-5" type="button" onClick={createBurstEvent}>
-            Sende 1x Kafka Event
-          </button>
-          <button
-            className="btn btn-primary btn-rounded my-5"
-            type="button"
-            onClick={() => {
-              for (let index = 0; index < 10; index++) {
-                setTimeout(() => {
-                  createBurstEvent();
-                }, 50);
-              }
-            }}
-          >
-            Sende 10x Kafka Event
-          </button>
-          <button
-            className="btn btn-primary btn-rounded my-5"
-            type="button"
-            onClick={() => {
-              for (let index = 0; index < 100; index++) {
-                setTimeout(() => {
-                  createBurstEvent();
-                }, 50);
-              }
-            }}
-          >
-            Sende 100x Kafka Event
-          </button>
         </DashboardItemContent>
 
         <DashboardItemContent title="Konfiguration des Data Generator">
@@ -191,7 +159,51 @@ function MainView() {
             </div>
           </form>
         </DashboardItemContent>
+
+        <DashboardItemContent title='Erstellen von "Burst" Events'>
+          <button className="btn btn-primary btn-rounded my-5" type="button" onClick={createBurstEvent}>
+            Sende 1x Kafka Event
+          </button>
+          <button
+            className="btn btn-primary btn-rounded my-5"
+            type="button"
+            onClick={() => {
+              for (let index = 0; index < 10; index++) {
+                setTimeout(() => {
+                  createBurstEvent();
+                }, 50);
+              }
+            }}
+          >
+            Sende 10x Kafka Event
+          </button>
+          <button
+            className="btn btn-primary btn-rounded my-5"
+            type="button"
+            onClick={() => {
+              for (let index = 0; index < 100; index++) {
+                setTimeout(() => {
+                  createBurstEvent();
+                }, 50);
+              }
+            }}
+          >
+            Sende 100x Kafka Event
+          </button>
+        </DashboardItemContent>
       </DashboardContainer>
+
+      <div className="card">
+        <h2 className="card-title">Erstellte Burst Events</h2>
+        {dataArray.map((item) => (
+          <span className="d-flex flex-row">
+            <i className="ri-profile-line"></i>
+            <p>{item.order_id}</p>
+            <i className="ri-time-line"></i>
+            <p>{new Date(item.timestamp).toLocaleString()}</p>
+          </span>
+        ))}
+      </div>
     </ViewContainer>
   );
 }
