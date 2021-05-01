@@ -9,7 +9,7 @@ function OrderDetailsView(props) {
   console.log(order_id);
   // fetch orders6
   useEffect(async () => {
-    const url = "http://localhost:5000/api/orders";
+    const url = "http://localhost:5000/api/order/"+order_id;
     fetch(url)
       .then((response) => response.json())
       .then((data) => setOrderDetails(data));
@@ -19,6 +19,7 @@ function OrderDetailsView(props) {
     <ViewContainer title="Details der Bestellung">
       {orderDetails && <div>{order_id}</div>}
       {!orderDetails && <p>Keine Daten vorhanden</p>}
+
     </ViewContainer>
   );
 }
