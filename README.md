@@ -52,7 +52,13 @@ Das wiederholte Starten des Use Case geht deutlich schneller, als das initiale S
 1. Starten von Minikube 
     - Starten von Minikube mit mehr RAM: `minikube --memory 8192 --cpus 4 --driver=docker start`
 
-2. Starten der Anwendung
+2. Builden der React Client (falls Änderungen an den Anwendungen vorgenommen wurden)
+    - Terminal im Ordner `big-data-use-case\datagenerator-app\client` starten
+    - React Client App mit dem Befehl `npm run build` builden
+    - Terminal im Ordner `big-data-use-case\web-app\client` starten
+    - React Client App mit dem Befehl `npm run build` builden
+
+3. Starten der Anwendung
     - `skaffold dev`
 
 ## Prüfende Schritte
