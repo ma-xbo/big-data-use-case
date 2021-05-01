@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@mysql/xdevapi": "8.0.24",
     "cors": "^2.8.5",
     "express": "^4.17.1"
   },
