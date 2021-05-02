@@ -11,7 +11,7 @@ data:
       `dish_name` varchar(250) DEFAULT NULL,
       `dish_price` float DEFAULT NULL,
       PRIMARY KEY (`dish_id`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
     CREATE TABLE `stores` (
       `store_id` char(36) NOT NULL,
@@ -19,7 +19,7 @@ data:
       `store_lat` varchar(20) DEFAULT NULL,
       `store_lon` varchar(20) DEFAULT NULL,
       PRIMARY KEY (`store_id`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
     CREATE TABLE `orders` (
       `order_id` char(36) NOT NULL,
@@ -31,21 +31,21 @@ data:
       KEY `orders_store_id_fk` (`store_id`),
       CONSTRAINT `orders_dishes_id_fk` FOREIGN KEY (`dish_id`) REFERENCES `dishes` (`dish_id`),
       CONSTRAINT `orders_stores_id_fk` FOREIGN KEY (`store_id`) REFERENCES `stores` (`store_id`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
     CREATE TABLE `popular_dish` (
       `dish_id` char(36) NOT NULL,
       `count` bigint DEFAULT NULL,
       PRIMARY KEY (`dish_id`),
       CONSTRAINT `popular_dish_dish_id_fk` FOREIGN KEY (`dish_id`) REFERENCES `dishes` (`dish_id`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
     CREATE TABLE `popular_store` (
       `store_id` char(36) NOT NULL,
       `count` bigint DEFAULT NULL,
       PRIMARY KEY (`store_id`),
       CONSTRAINT `popular_store_store_id_fk` FOREIGN KEY (`store_id`) REFERENCES `stores` (`store_id`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
     INSERT INTO dishes (dish_id, dish_name, dish_price) VALUES ('61579f07-ff46-4078-af3a-8228f0a294b7', 'Hackfleischröllchen mit Djuvec-Reis und Salat', '12.9');
     INSERT INTO dishes (dish_id, dish_name, dish_price) VALUES ('535bac21-27dd-4ed2-b28b-5c643556f4ba', 'Eisbein mit Sauerkraut, Salzkartoffeln und Erbspürree mit Speck', '13.89');
@@ -92,6 +92,8 @@ spec:
               value: "mysecretpw"
             - name: MYSQL_DATABASE
               value: "popular"
+            - name: LANG
+              value: "C.UTF-8"
           ports:
             - containerPort: 33060
             - containerPort: 3306
