@@ -14,40 +14,48 @@ data:
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
     CREATE TABLE `stores` (
-    `store_id` char(36) NOT NULL,
-    `store_name` varchar(250) DEFAULT NULL,
-    `store_lat` varchar(20) DEFAULT NULL,
-    `store_lon` varchar(20) DEFAULT NULL,
-    PRIMARY KEY (`store_id`)
+      `store_id` char(36) NOT NULL,
+      `store_name` varchar(250) DEFAULT NULL,
+      `store_lat` varchar(20) DEFAULT NULL,
+      `store_lon` varchar(20) DEFAULT NULL,
+      PRIMARY KEY (`store_id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
     CREATE TABLE `orders` (
-    `order_id` char(36) NOT NULL,
-    `dish_id` char(36) DEFAULT NULL,
-    `store_id` char(36) DEFAULT NULL,
-    `timestamp` datetime DEFAULT NULL,
-    PRIMARY KEY (`order_id`),
-    KEY `orders_dish_id_fk` (`dish_id`),
-    KEY `orders_store_id_fk` (`store_id`),
-    CONSTRAINT `orders_dishes_id_fk` FOREIGN KEY (`dish_id`) REFERENCES `dishes` (`dish_id`),
-    CONSTRAINT `orders_stores_id_fk` FOREIGN KEY (`store_id`) REFERENCES `stores` (`store_id`)
+      `order_id` char(36) NOT NULL,
+      `dish_id` char(36) DEFAULT NULL,
+      `store_id` char(36) DEFAULT NULL,
+      `timestamp` datetime DEFAULT NULL,
+      PRIMARY KEY (`order_id`),
+      KEY `orders_dish_id_fk` (`dish_id`),
+      KEY `orders_store_id_fk` (`store_id`),
+      CONSTRAINT `orders_dishes_id_fk` FOREIGN KEY (`dish_id`) REFERENCES `dishes` (`dish_id`),
+      CONSTRAINT `orders_stores_id_fk` FOREIGN KEY (`store_id`) REFERENCES `stores` (`store_id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
     CREATE TABLE `popular_dish` (
-    `dish_id` char(36) NOT NULL,
-    `count` bigint DEFAULT NULL,
-    PRIMARY KEY (`dish_id`),
-    CONSTRAINT `popular_dish_dish_id_fk` FOREIGN KEY (`dish_id`) REFERENCES `dishes` (`dish_id`)
+      `dish_id` char(36) NOT NULL,
+      `count` bigint DEFAULT NULL,
+      PRIMARY KEY (`dish_id`),
+      CONSTRAINT `popular_dish_dish_id_fk` FOREIGN KEY (`dish_id`) REFERENCES `dishes` (`dish_id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
     CREATE TABLE `popular_store` (
-    `store_id` char(36) NOT NULL,
-    `count` bigint DEFAULT NULL,
-    PRIMARY KEY (`store_id`),
-    CONSTRAINT `popular_store_store_id_fk` FOREIGN KEY (`store_id`) REFERENCES `stores` (`store_id`)
+      `store_id` char(36) NOT NULL,
+      `count` bigint DEFAULT NULL,
+      PRIMARY KEY (`store_id`),
+      CONSTRAINT `popular_store_store_id_fk` FOREIGN KEY (`store_id`) REFERENCES `stores` (`store_id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-# INSERT INTO missions (mission, description, heading) VALUES ('sts-0', 'Esse sunt anim nulla nulla id. Mollit excepteur dolor duis mollit nisi proident ut reprehenderit excepteur nulla duis. Ea dolore aliqua Lorem aliquip exercitation labore. In aute duis nulla et deserunt exercitation. Excepteur in Lorem veniam est aliqua irure.\nAmet sit id enim sit ea non laboris consectetur. Adipisicing ex fugiat Lorem sint officia nostrud qui officia esse irure duis. Exercitation tempor Lorem ea ullamco pariatur occaecat nisi cillum esse. Eiusmod adipisicing non exercitation consequat.\nDuis labore enim Lorem duis elit officia non. Eiusmod dolor irure reprehenderit aliqua et non labore deserunt magna ad Lorem labore. In nulla adipisicing duis labore non labore proident officia labore aute consequat anim. Aute minim dolor dolor enim reprehenderit eu consequat ea ex mollit aliqua. Aliquip excepteur Lorem exercitation ut.\nLorem nulla ea aute consequat esse. Ad labore non dolore nulla pariatur aliqua aliqua consequat qui nisi consectetur pariatur ipsum. Sunt ut aliquip ut eu incididunt est nulla aliqua nostrud. Nostrud velit elit tempor quis occaecat sunt ullamco incididunt ipsum ipsum. Laborum in ipsum qui ex eu culpa aliqua incididunt in labore ipsum tempor magna. Elit nulla qui labore adipisicing duis. Laborum anim veniam quis mollit aliquip quis commodo anim eu.\nVeniam esse incididunt et nulla proident eu adipisicing laboris sit. Pariatur proident ut fugiat cillum excepteur elit sunt eiusmod eiusmod. In commodo irure consectetur sint ullamco. Eu ea sit ad aliqua anim laborum tempor esse eiusmod culpa ut tempor adipisicing sit. Ad cupidatat aliqua fugiat consequat quis voluptate incididunt amet aliquip pariatur sunt est ad reprehenderit. Sit tempor nisi magna esse deserunt deserunt anim non incididunt enim incididunt cupidatat ut. Deserunt cupidatat deserunt culpa aliqua.', 'Culpa adipisicing veniam non nisi.');
+    INSERT INTO dishes (dish_id, dish_name, dish_price) VALUES ('61579f07-ff46-4078-af3a-8228f0a294b7', 'Hackfleischröllchen mit Djuvec-Reis und Salat', '12.9');
+    INSERT INTO dishes (dish_id, dish_name, dish_price) VALUES ('535bac21-27dd-4ed2-b28b-5c643556f4ba', 'Eisbein mit Sauerkraut, Salzkartoffeln und Erbspürree mit Speck', '13.89');
+    INSERT INTO dishes (dish_id, dish_name, dish_price) VALUES ('38adb785-246b-4efe-94e9-d194fa8c4978', 'Meeresfrüchtesalat mit Chili und Thai-Kräutem', '11.50');
+  
+    INSERT INTO stores (store_id, store_name, store_lat, store_lon) VALUES ('61579f27-ff46-40a8-af3a-8228f0a294b7', 'Five Rivers Restaurant', '52.52168860493468', '13.384807813113612');
+    INSERT INTO stores (store_id, store_name, store_lat, store_lon) VALUES ('61529f27-ff46-40a8-af3a-8228f0a294b7', 'Best Worscht', '52.510491388069475', '13.380505155941325');
+    INSERT INTO stores (store_id, store_name, store_lat, store_lon) VALUES ('61529f21-ff46-40a8-af3a-8228f0a294b7', 'Restaurant Facil', '52.509029388326915', '13.373680166244354');
+   
+   #INSERT INTO stores (store_id, store_name, store_lat, store_lon) VALUES ('aaa', 'aaa', 22, 12);
 
 ---
 apiVersion: apps/v1
