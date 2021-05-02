@@ -56,16 +56,16 @@ const router = express.Router();
 // -------------------------------------------------------
 
 const dbConfig = {
-    host: 'localhost',
-    port: '33060',
-    user: 'root',
-    password: 'mysecretpw',
-    schema: 'popular'
+  host: "my-app-mysql-service",
+  port: "33060",
+  user: "root",
+  password: "mysecretpw",
+  schema: "popular",
 };
 
 async function executeQuery(query, data) {
-    let session = await mysqlx.getSession(dbConfig);
-    return await session.sql(query, data).bind(data).execute()
+  let session = await mysqlx.getSession(dbConfig);
+  return await session.sql(query, data).bind(data).execute();
 }
 
 // ------------------------------------------------------------
@@ -73,129 +73,118 @@ async function executeQuery(query, data) {
 // ------------------------------------------------------------
 
 async function getOrdersList(maxCount, offset) {
-    const query = `SELECT o.order_id, d.dish_name, d.dish_price, s.store_name, s.store_lat, s.store_lon, o.timestamp
+  const query = `SELECT o.order_id, d.dish_name, d.dish_price, s.store_name, s.store_lat, s.store_lon, o.timestamp
                    FROM orders o
                             JOIN dishes d on o.dish_id = d.dish_id
                             JOIN stores s ON s.store_id = o.store_id
                    ORDER BY o.timestamp DESC LIMIT ?
                    OFFSET ?`;
-    const result = (await executeQuery(query, [maxCount, offset]))
-        .fetchAll()
-        .map(row => ({
-            order_id: row[0].trim(),
-            dish_name: row[1],
-            dish_price: row[2],
-            store_name: row[3],
-            store_area: 'Zone XYZ', // ToDo: DB? Generator?
-            store_lat: row[4],
-            store_lon: row[5],
-            timestamp: row[6]
-        }));
+  const result = (await executeQuery(query, [maxCount, offset])).fetchAll().map((row) => ({
+    order_id: row[0].trim(),
+    dish_name: row[1],
+    dish_price: row[2],
+    store_name: row[3],
+    store_area: "Zone XYZ", // ToDo: DB? Generator?
+    store_lat: row[4],
+    store_lon: row[5],
+    timestamp: row[6],
+  }));
 
-    return result;
+  return result;
 }
 
 // Zurückgeben aller Bestellungen
 router.get("/orders(/page/:page)?(/limit/:limit)?", (req, res) => {
+  // Set pagination options
+  const limit = parseInt(req.params.limit ? req.params.limit : 20);
+  const offset = parseInt(req.params.page ? limit * (req.params.page - 1) : 0);
 
-    // Set pagination options
-    const limit = parseInt(req.params.limit ? req.params.limit : 20);
-    const offset = parseInt(req.params.page ? limit * (req.params.page - 1) : 0);
+  // Use DB query and return data as JSON
+  getOrdersList(limit, offset).then((data) => res.json(data));
 
-    // Use DB query and return data as JSON
-    getOrdersList(limit, offset).then(data => res.json(data));
-
-    // Log req and res
-    console.log(
-        "Request: " + "Method=" + req.method + ", URL=" + req.originalUrl + "; Response: " + "Status=" + res.statusCode
-    );
+  // Log req and res
+  console.log(
+    "Request: " + "Method=" + req.method + ", URL=" + req.originalUrl + "; Response: " + "Status=" + res.statusCode
+  );
 });
 
 async function getSingleOrder(orderId) {
-    console.log('getOrder()');
-    const query = `SELECT o.order_id, d.dish_name, d.dish_price, s.store_name, s.store_lat, s.store_lon, o.timestamp
+  console.log("getOrder()");
+  const query = `SELECT o.order_id, d.dish_name, d.dish_price, s.store_name, s.store_lat, s.store_lon, o.timestamp
                    FROM orders o
                             JOIN dishes d on o.dish_id = d.dish_id
                             JOIN stores s ON s.store_id = o.store_id
                    WHERE o.order_id = ?;`;
-    let data = (await executeQuery(query, [orderId])).fetchOne();
+  let data = (await executeQuery(query, [orderId])).fetchOne();
 
-    const result = {
-        order_id: data[0],
-        dish_name: data[1],
-        dish_price: data[2],
-        store_name: data[3],
-        store_area: 'Zone XYZ', // ToDo: DB? Generator?
-        store_lat: data[4],
-        store_lon: data[5],
-        timestamp: data[6]
-    }
+  const result = {
+    order_id: data[0],
+    dish_name: data[1],
+    dish_price: data[2],
+    store_name: data[3],
+    store_area: "Zone XYZ", // ToDo: DB? Generator?
+    store_lat: data[4],
+    store_lon: data[5],
+    timestamp: data[6],
+  };
 
-    console.log(result);
-    return result;
-
+  console.log(result);
+  return result;
 }
 
 // Zurückgeben einer bestimmten Bestellung
 router.get("/order/:order_id", (req, res) => {
-    const orderId = req.params.order_id;
+  const orderId = req.params.order_id;
 
-    getSingleOrder(orderId).then(data => res.json(data));
+  getSingleOrder(orderId).then((data) => res.json(data));
 
-    console.log(
-        "Request: " + "Method=" + req.method + ", URL=" + req.originalUrl + "; Response: " + "Status=" + res.statusCode
-    );
+  console.log(
+    "Request: " + "Method=" + req.method + ", URL=" + req.originalUrl + "; Response: " + "Status=" + res.statusCode
+  );
 });
 
 // Get popular dishes
 
 async function getPopularDishes(maxCount) {
-    const query = `SELECT d.dish_id, d.dish_name, d.dish_price, p.count
+  const query = `SELECT d.dish_id, d.dish_name, d.dish_price, p.count
                    FROM popular_dish p
                             JOIN dishes d ON p.dish_id = d.dish_id
                    ORDER BY p.count DESC LIMIT ?;`;
-    return (await executeQuery(query, [maxCount]))
-        .fetchAll()
-        .map(row => ({
-            dish_id: row[0],
-            dish_name: row[1],
-            dish_price: row[2],
-            count: row[3]
-        }));
-};
+  return (await executeQuery(query, [maxCount])).fetchAll().map((row) => ({
+    dish_id: row[0],
+    dish_name: row[1],
+    dish_price: row[2],
+    count: row[3],
+  }));
+}
 
 router.get("popular/dishes/:count", (req, res) => {
+  const maxCount = req.params.count;
 
-    const maxCount = req.params.count;
-
-    getPopularDishes(maxCount).then(result => res.json(result));
-
+  getPopularDishes(maxCount).then((result) => res.json(result));
 });
-
 
 // Get popular stores
 
 async function getPopularStores(maxCount) {
-    const query = `SELECT s.store_id, s.store_name, s.store_lat, s.store_lon, p.count
+  const query = `SELECT s.store_id, s.store_name, s.store_lat, s.store_lon, p.count
                    FROM popular_dish p
                             JOIN dishes d ON p.dish_id = d.dish_id
                    ORDER BY p.count DESC LIMIT ?;`;
 
-    return (await executeQuery(query, [maxCount]))
-        .fetchAll()
-        .map(row => ({
-            store_id: row[0],
-            store_name: row[1],
-            store_lan: row[2],
-            store_lon: row[3],
-            count: row[4],
-        }));
-};
+  return (await executeQuery(query, [maxCount])).fetchAll().map((row) => ({
+    store_id: row[0],
+    store_name: row[1],
+    store_lan: row[2],
+    store_lon: row[3],
+    count: row[4],
+  }));
+}
 
 router.get("popular/stores/:count", (req, res) => {
-    const maxCount = req.params.count;
+  const maxCount = req.params.count;
 
-    getPopularStores(maxCount).then(result => res.json(result));
+  getPopularStores(maxCount).then((result) => res.json(result));
 });
 
 module.exports = router;
