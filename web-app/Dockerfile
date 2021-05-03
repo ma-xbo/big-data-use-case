@@ -4,7 +4,7 @@
 #
 
 # Select base image https://hub.docker.com/_/node/
-FROM node:alpine
+FROM node:alpine AS reactAppBuilder
 
 # Set working dir for consecutive commands
 WORKDIR /reactapp
@@ -39,7 +39,7 @@ ADD server.js /webapp/
 ADD router.js /webapp/
 
 # Copy directory 'build' from intermediate docker image to path '/webapp/client/build' in final docker image
-COPY --from=0 /reactapp/build /webapp/client/build
+COPY --from=reactAppBuilder /reactapp/build /webapp/client/build
 
 # Command to start the express server
 CMD node /webapp/server.js
