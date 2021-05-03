@@ -33,19 +33,32 @@ data:
       CONSTRAINT `orders_stores_id_fk` FOREIGN KEY (`store_id`) REFERENCES `stores` (`store_id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-    CREATE TABLE `popular_dish` (
+    CREATE TABLE `count_dish` (
       `dish_id` char(36) NOT NULL,
       `count` bigint DEFAULT NULL,
+      PRIMARY KEY (`dish_id`),
+      CONSTRAINT `count_dish_dish_id_fk` FOREIGN KEY (`dish_id`) REFERENCES `dishes` (`dish_id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+    
+    CREATE TABLE `revenue_dish` (
+      `dish_id` char(36) NOT NULL,
       `revenue` bigint DEFAULT NULL, # In Cent
       PRIMARY KEY (`dish_id`),
-      CONSTRAINT `popular_dish_dish_id_fk` FOREIGN KEY (`dish_id`) REFERENCES `dishes` (`dish_id`)
+      CONSTRAINT `revenue_dish_dish_id_fk` FOREIGN KEY (`dish_id`) REFERENCES `dishes` (`dish_id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-    CREATE TABLE `popular_store` (
+    CREATE TABLE `count_store` (
       `store_id` char(36) NOT NULL,
       `count` bigint DEFAULT NULL,
       PRIMARY KEY (`store_id`),
-      CONSTRAINT `popular_store_store_id_fk` FOREIGN KEY (`store_id`) REFERENCES `stores` (`store_id`)
+      CONSTRAINT `count_store_store_id_fk` FOREIGN KEY (`store_id`) REFERENCES `stores` (`store_id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+    CREATE TABLE `revenue_store` (
+      `store_id` char(36) NOT NULL,
+      `revenue` bigint DEFAULT NULL, # In Cent
+      PRIMARY KEY (`store_id`),
+      CONSTRAINT `revenue_store_store_id_fk` FOREIGN KEY (`store_id`) REFERENCES `stores` (`store_id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
     INSERT INTO dishes (dish_id, dish_name, dish_price) VALUES ('61579f07-ff46-4078-af3a-8228f0a294b7', 'Hackfleischröllchen mit Djuvec-Reis und Salat', '12.9');
