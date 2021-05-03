@@ -17,30 +17,17 @@ spark = SparkSession.builder \
 # Set log level
 spark.sparkContext.setLogLevel('WARN')
 
-# Example Part 2
-# Read messages from Kafka
-kafkaMessages = spark \
-    .readStream \
+# Example Part 2+3
+# Helper function for tranforming multiple read-streams
+def getMessages():
+    tmp_stream = spark.readStream \
     .format("kafka") \
     .option("kafka.bootstrap.servers",
             "my-cluster-kafka-bootstrap:9092") \
     .option("subscribe", "tracking-data") \
     .option("startingOffsets", "earliest") \
     .load()
-
-# Define schema of tracking data
-trackingMessageSchema = StructType() \
-    .add("dish_id", StringType()) \
-    .add("store_id", StringType()) \
-    .add("order_id", StringType()) \
-    .add("timestamp", IntegerType())
-
-# TODO: Check schema when finalized in data-generator
-
-
-# Example Part 3
-# Convert value: binary -> JSON -> fields + parsed timestamp
-trackingMessages = kafkaMessages.select(
+    return tmp_stream.select(
     # Extract 'value' from Kafka message (i.e., the tracking data)
     from_json(
         column("value").cast("string"),
@@ -58,13 +45,26 @@ trackingMessages = kafkaMessages.select(
     .withColumnRenamed('json.dish_id', 'dish_id') \
     .withColumnRenamed('json.store_id', 'store_id') \
     .withColumnRenamed('json.order_id', 'order_id') \
+    .withColumnRenamed('json.price', 'price') \
     .withWatermark("parsed_timestamp", windowDuration)
 
-# TODO: Check schema when finalized in data-generator
+# Define schema of tracking data
+trackingMessageSchema = StructType() \
+    .add("dish_id", StringType()) \
+    .add("store_id", StringType()) \
+    .add("order_id", StringType()) \
+    .add("price", IntegerType()) \
+    .add("timestamp", IntegerType())
+
+# Read messages from Kafka
+trackingMessages_0 = getMessages()
+trackingMessages_1 = getMessages()
+trackingMessages_2 = getMessages()
+trackingMessages_3 = getMessages()
 
 # Example Part 4
 # Compute most popular dishes by count
-dish_count = trackingMessages.groupBy(
+dish_count = trackingMessages_0.groupBy(
     window(
         column("parsed_timestamp"),
         windowDuration,
@@ -73,40 +73,46 @@ dish_count = trackingMessages.groupBy(
     column("dish_id")
 ).count().withColumnRenamed('count', 'dish_orders')
 
-## Compute most popular dishes by revenue
-#dish_revenue = trackingMessages.groupBy(
-    #window(
-        #column("parsed_timestamp"),
-        #windowDuration,
-        #slidingDuration
-    #),
-    #column("dish_id")
-#).sum().withColumnRenamed('sum', 'dish_revenue')
-#
-## Compute most popular stores by count
-#store_count = trackingMessages.groupBy(
-    #window(
-        #column("parsed_timestamp"),
-        #windowDuration,
-        #slidingDuration
-    #),
-    #column("store_id")
-#).count().withColumnRenamed('count', 'store_orders')
-#
-## Compute most popular stores by revenue
-#store_revenue = trackingMessages.groupBy(
-    #window(
-        #column("parsed_timestamp"),
-        #windowDuration,
-        #slidingDuration
-    #),
-    #column("store_id")
-#).count().withColumnRenamed('count', 'store_revenue')
-#
-# TODO: implement double agg. on both stores and dishes?
+# Compute most popular dishes by revenue
+dish_revenue = trackingMessages_1.groupBy(
+   window(
+       column("parsed_timestamp"),
+       windowDuration,
+       slidingDuration
+   ),
+   column("dish_id")
+).sum("price").withColumnRenamed('sum', 'dish_revenue')
+
+# Compute most popular stores by count
+store_count = trackingMessages_2.groupBy(
+    window(
+        column("parsed_timestamp"),
+        windowDuration,
+        slidingDuration
+    ),
+    column("store_id")
+).count().withColumnRenamed('count', 'store_orders')
+
+# Compute most popular stores by revenue
+store_revenue = trackingMessages_3.groupBy(
+    window(
+        column("parsed_timestamp"),
+        windowDuration,
+        slidingDuration
+    ),
+    column("store_id")
+).sum("price").withColumnRenamed('count', 'store_revenue')
 
 # Example Part 5
 # Start running the query; print running counts to the console
+consoleDump = dish_revenue \
+    .writeStream \
+    .trigger(processingTime=slidingDuration) \
+    .outputMode("update") \
+    .format("console") \
+    .option("truncate", "false") \
+    .start()
+
 consoleDump = dish_count \
     .writeStream \
     .trigger(processingTime=slidingDuration) \
@@ -115,56 +121,74 @@ consoleDump = dish_count \
     .option("truncate", "false") \
     .start()
 
-#consoleDump = dish_revenue \
-    #.writeStream \
-    #.trigger(processingTime=slidingDuration) \
-    #.outputMode("update") \
-    #.format("console") \
-    #.option("truncate", "false") \
-    #.start()
-#
-#consoleDump = store_count \
-    #.writeStream \
-    #.trigger(processingTime=slidingDuration) \
-    #.outputMode("update") \
-    #.format("console") \
-    #.option("truncate", "false") \
-    #.start()
-#
-#consoleDump = store_revenue \
-    #.writeStream \
-    #.trigger(processingTime=slidingDuration) \
-    #.outputMode("update") \
-    #.format("console") \
-    #.option("truncate", "false") \
-    #.start()
+consoleDump = store_revenue \
+    .writeStream \
+    .trigger(processingTime=slidingDuration) \
+    .outputMode("update") \
+    .format("console") \
+    .option("truncate", "false") \
+    .start()
+
+consoleDump = store_count \
+    .writeStream \
+    .trigger(processingTime=slidingDuration) \
+    .outputMode("update") \
+    .format("console") \
+    .option("truncate", "false") \
+    .start()
 
 # Example Part 6
-def saveToDatabase(batchDataframe, batchId):
+def saveToDatabase_dish(batchDataframe, batchId):
     # Define function to save a dataframe to mysql
     def save_to_db(iterator):
         # Connect to database and use schema
         session = mysqlx.get_session(dbOptions)
-        session.sql("USE popular").execute() # TODO: Make sure schema name is still correct
+        session.sql("USE popular").execute()
 
         for row in iterator:
             # Run upsert (insert or update existing)
-            sql = session.sql("INSERT INTO popular " # TODO: Desicde on table structure and jtherefore results layout: Seperate views for revenue and count or both in one with order-by in html?
-                              "(mission, count) VALUES (?, ?) "
-                              "ON DUPLICATE KEY UPDATE count=?")
-            sql.bind(row.mission, row.views, row.views).execute()
+            sql = session.sql("INSERT INTO popular_dish "
+                              "(dish_id, count, revenue) VALUES (?, ?, ?) "
+                              "ON DUPLICATE KEY UPDATE count=?, revenue=?")
+            sql.bind(row.dish_id, row.count, row.revenue, row.count, row.revenue).execute()
 
         session.close()
 
     # Perform batch UPSERTS per data partition
     batchDataframe.foreachPartition(save_to_db)
 
+def saveToDatabase_store(batchDataframe, batchId):
+    # Define function to save a dataframe to mysql
+    def save_to_db(iterator):
+        # Connect to database and use schema
+        session = mysqlx.get_session(dbOptions)
+        session.sql("USE popular").execute()
+
+        for row in iterator:
+            # Run upsert (insert or update existing)
+            sql = session.sql("INSERT INTO popular_store "
+                              "(store_id, count, revenue) VALUES (?, ?, ?) "
+                              "ON DUPLICATE KEY UPDATE count=?, revenue=?")
+            sql.bind(row.store_id, row.count, row.revenue, row.count, row.revenue).execute()
+
+        session.close()
+
+    # Perform batch UPSERTS per data partition
+    batchDataframe.foreachPartition(save_to_db)
+
+
 # Example Part 7
-#dbInsertStream = popular.writeStream \
+#dbInsertStream = dish_join.writeStream \
     #.trigger(processingTime=slidingDuration) \
     #.outputMode("update") \
-    #.foreachBatch(saveToDatabase) \
+    #.foreachBatch(saveToDatabase_dish) \
     #.start()
-#
+
+#dbInsertStream = store_join.writeStream \
+    #.trigger(processingTime=slidingDuration) \
+    #.outputMode("update") \
+    #.foreachBatch(saveToDatabase_store) \
+    #.start()
+
 # Wait for termination
 spark.streams.awaitAnyTermination()
