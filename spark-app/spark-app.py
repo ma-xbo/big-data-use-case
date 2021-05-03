@@ -138,38 +138,38 @@ consoleDump = store_count \
     .start()
 
 # Example Part 6
-def saveToDatabase_dish(batchDataframe, batchId):
+def saveToDatabase_dish_count(batchDataframe, batchId):
     # Define function to save a dataframe to mysql
-    def save_to_db(iterator):
+    def save_to_db_dish_count(iterator):
         # Connect to database and use schema
         session = mysqlx.get_session(dbOptions)
         session.sql("USE popular").execute()
 
         for row in iterator:
             # Run upsert (insert or update existing)
-            sql = session.sql("INSERT INTO popular_dish "
-                              "(dish_id, count, revenue) VALUES (?, ?, ?) "
-                              "ON DUPLICATE KEY UPDATE count=?, revenue=?")
-            sql.bind(row.dish_id, row.count, row.revenue, row.count, row.revenue).execute()
+            sql = session.sql("INSERT INTO count_dish "
+                              "(dish_id, count) VALUES (?, ?) "
+                              "ON DUPLICATE KEY UPDATE count=?")
+            sql.bind(row.dish_id, row.count, row.count).execute()
 
         session.close()
 
     # Perform batch UPSERTS per data partition
     batchDataframe.foreachPartition(save_to_db)
 
-def saveToDatabase_store(batchDataframe, batchId):
+def saveToDatabase_dish_revenue(batchDataframe, batchId):
     # Define function to save a dataframe to mysql
-    def save_to_db(iterator):
+    def save_to_db_dish_revenue(iterator):
         # Connect to database and use schema
         session = mysqlx.get_session(dbOptions)
         session.sql("USE popular").execute()
 
         for row in iterator:
             # Run upsert (insert or update existing)
-            sql = session.sql("INSERT INTO popular_store "
-                              "(store_id, count, revenue) VALUES (?, ?, ?) "
-                              "ON DUPLICATE KEY UPDATE count=?, revenue=?")
-            sql.bind(row.store_id, row.count, row.revenue, row.count, row.revenue).execute()
+            sql = session.sql("INSERT INTO revenue_dish "
+                              "(dish_id, revenue) VALUES (?, ?) "
+                              "ON DUPLICATE KEY UPDATE revenue=?")
+            sql.bind(row.dish_id, row.revenue, row.revenue).execute()
 
         session.close()
 
@@ -178,17 +178,17 @@ def saveToDatabase_store(batchDataframe, batchId):
 
 
 # Example Part 7
-#dbInsertStream = dish_join.writeStream \
-    #.trigger(processingTime=slidingDuration) \
-    #.outputMode("update") \
-    #.foreachBatch(saveToDatabase_dish) \
-    #.start()
+dbInsertStream = dish_count.writeStream \
+    .trigger(processingTime=slidingDuration) \
+    .outputMode("update") \
+    .foreachBatch(saveToDatabase_dish_count) \
+    .start()
 
-#dbInsertStream = store_join.writeStream \
-    #.trigger(processingTime=slidingDuration) \
-    #.outputMode("update") \
-    #.foreachBatch(saveToDatabase_store) \
-    #.start()
+dbInsertStream = dish_revenue.writeStream \
+    .trigger(processingTime=slidingDuration) \
+    .outputMode("update") \
+    .foreachBatch(saveToDatabase_dish_revenue) \
+    .start()
 
 # Wait for termination
 spark.streams.awaitAnyTermination()

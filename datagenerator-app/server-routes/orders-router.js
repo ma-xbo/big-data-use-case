@@ -82,10 +82,7 @@ router.get("/addorder", async (req, res) => {
       order_id: orderId,
       dish_id: dishId,
       store_id: storeId,
-      
-      //TODO
-      // Price der Order
-
+      price: 100,
       timestamp: timestamp_kafka,
     };
 
