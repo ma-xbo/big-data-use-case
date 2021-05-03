@@ -36,6 +36,7 @@ data:
     CREATE TABLE `popular_dish` (
       `dish_id` char(36) NOT NULL,
       `count` bigint DEFAULT NULL,
+      `revenue` bigint DEFAULT NULL, # In Cent
       PRIMARY KEY (`dish_id`),
       CONSTRAINT `popular_dish_dish_id_fk` FOREIGN KEY (`dish_id`) REFERENCES `dishes` (`dish_id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
