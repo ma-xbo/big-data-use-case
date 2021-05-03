@@ -66,29 +66,56 @@ router.get("/addorder", async (req, res) => {
     const orderId = uuidv4();
     const dishId = dishes[Math.floor(Math.random() * dishes.length)].dish_id;
     const storeId = stores[Math.floor(Math.random() * stores.length)].store_id;
-    const timestamp = moment().format("YYYY-MM-DD  HH:mm:ss.000"); // Format für MySQL Datetime
 
-    const order = {
+    const date = new Date();
+    const timestamp_mysql = moment(date).format("YYYY-MM-DD  HH:mm:ss.000"); // Format für MySQL Datetime
+    const timestamp_kafka = Math.floor(date / 1000); // Format für Kafka
+
+    const order_mysql = {
       order_id: orderId,
       dish_id: dishId,
       store_id: storeId,
-      timestamp: timestamp,
+      timestamp: timestamp_mysql,
     };
 
+    const order_kafka = {
+      order_id: orderId,
+      dish_id: dishId,
+      store_id: storeId,
+      
+      //TODO
+      // Price der Order
+
+      timestamp: timestamp_kafka,
+    };
+
+    // Hinzufügen der Bestellung in die orders Tabelle der Datenbank
     mysqlx.getSession(dbSessionConfig).then(function (session) {
-      // Accessing an existing table
+      // Zugriff auf die Orders-Tabelle
       ordersTable = session.getSchema("popular").getTable("orders");
 
-      // Insert SQL Table data
+      // Einfügen der Daten in die Orders-Tabelle
       return ordersTable
         .insert(["order_id", "dish_id", "store_id", "timestamp"])
-        .values([orderId, dishId, storeId, timestamp])
+        .values([order_mysql.order_id, order_mysql.dish_id, order_mysql.store_id, order_mysql.timestamp])
         .execute();
     });
 
+    // Senden der Tracking-Nachricht an Kafka
+    sendTrackingMessage(order_kafka)
+      .then(() => {
+        console.log("Sent new order to kafka");
+      })
+      .catch((e) => {
+        console.log("Error sending to kafka", e);
+        res.sendStatus(500);
+      });
+
+    // Zurückgeben der erstellten Bestellung
     res.send(order);
   } catch (error) {
     console.log(error);
+    res.sendStatus(error);
     throw new Error("BROKEN");
   }
 
