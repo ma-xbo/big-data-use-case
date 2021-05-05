@@ -25,3 +25,13 @@ deploy:
   kubectl:
     manifests:
       - k8s/*.yaml
+
+portForward:
+  - resourceType: deployment
+    resourceName: web-app
+    port: 5000
+    localPort: 5000
+  - resourceType: deployment
+    resourceName: datagenerator-app
+    port: 3000
+    localPort: 3000
