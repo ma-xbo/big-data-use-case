@@ -1,19 +1,25 @@
-apiVersion: skaffold/v2alpha4
+apiVersion: skaffold/v2beta15
 kind: Config
 
 metadata:
   name: popular-slides
 
 build:
+  tagPolicy:
+    sha256: {}
   artifacts:
     - image: farberg/popular-slides-spark
       context: spark-app
 
     - image: web-app
       context: web-app
+      docker:
+        dockerfile: Dockerfile
 
     - image: datagenerator-app
       context: datagenerator-app
+      docker:
+        dockerfile: Dockerfile
 
 deploy:
   kubectl:
