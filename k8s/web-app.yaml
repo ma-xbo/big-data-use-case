@@ -1,4 +1,18 @@
-#Begin: Deployment
+# Web App Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-app-service
+spec:
+  selector:
+    app: web-app
+  ports:
+    - name: web-app
+      protocol: TCP
+      port: 5000
+      targetPort: 5000
+--- 
+# Web App Deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -21,19 +35,3 @@ spec:
           imagePullPolicy: Never
           ports:
             - containerPort: 5000
-
----
-#Begin: Service
-kind: Service
-apiVersion: v1
-metadata:
-  name: web-app-service
-spec:
-  selector:
-    app: web-app
-  ports:
-    - name: web-app
-      protocol: TCP
-      port: 5000
-      targetPort: 5000
-#End: Service
