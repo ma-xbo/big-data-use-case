@@ -1,4 +1,5 @@
 import React from "react";
+import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 
 function CustomDatagrid(props) {
   const { columns, rows, linkKey } = props;
@@ -20,7 +21,7 @@ function CustomDatagrid(props) {
               <tr key={row.order_id}>
                 {columns.map((col) => (
                   <td key={col.key + "_" + row.order_id}>
-                    {col.key === linkKey ? <a href={hrefUrl + row.order_id}>{row[col.key]}</a> : row[col.key]}
+                    {col.key === linkKey ? <Link to={hrefUrl + row.order_id}>{row[col.key]}</Link> : row[col.key]}
                   </td>
                 ))}
               </tr>
