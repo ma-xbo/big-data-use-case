@@ -12,7 +12,11 @@ function OrderDetailsView(props) {
       const url = "http://localhost:5000/api/order/" + order_id;
       await fetch(url)
         .then((response) => response.json())
-        .then((data) => setOrderDetails(data));
+        .then((data) => {
+          data.dish_price = data.dish_price.toFixed(2) + "€";
+          data.timestamp = new Date(data.timestamp).toLocaleString();
+          setOrderDetails(data);
+        });
     }
     fetchData();
   }, []);
@@ -22,11 +26,19 @@ function OrderDetailsView(props) {
       {orderDetails && (
         <div className="container-fluid">
           <div className="row">
-            <div className="col-12 col-xl-6">
-              <div>{order_id}</div>
-              <div>{orderDetails.dish_name}</div>
+            <div className="col-12 col-xl-6 pr-5">
+              <table className="table table-hover">
+                <tbody>
+                  {Object.keys(orderDetails).map((key) => (
+                    <tr>
+                      <th>{key}</th>
+                      <td>{orderDetails[key]}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-            <div className="col-12 col-xl-6">
+            <div className="col-12 col-xl-6 pl-5">
               <MapContainer
                 center={[orderDetails.store_lat, orderDetails.store_lon]}
                 zoom={13}
