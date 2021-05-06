@@ -86,6 +86,9 @@ router.get("/addorder", async (req, res) => {
       timestamp: timestamp_kafka,
     };
 
+
+    //TODO -> Das Hinzufügen der Order in die DB über den Data Generator wird später entfernt
+    //     -> Die Funktion wird später von Kafka/Spark übernommen  
     // Hinzufügen der Bestellung in die orders Tabelle der Datenbank
     mysqlx.getSession(dbSessionConfig).then(function (session) {
       // Zugriff auf die Orders-Tabelle
@@ -109,7 +112,7 @@ router.get("/addorder", async (req, res) => {
       });
 
     // Zurückgeben der erstellten Bestellung
-    res.send(order);
+    res.send(order_mysql);
   } catch (error) {
     console.log(error);
     res.sendStatus(error);
