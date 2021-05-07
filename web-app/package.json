@@ -11,7 +11,8 @@
   "dependencies": {
     "@mysql/xdevapi": "8.0.24",
     "cors": "^2.8.5",
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "memcache-plus": "^0.2.22"
   },
   "devDependencies": {
     "nodemon": "^2.0.7"
