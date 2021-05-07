@@ -1,55 +1,10 @@
 const express = require("express");
 const mysqlx = require("@mysql/xdevapi");
+const dns = require("dns").promises;
+const memcachePlus = require("memcache-plus");
 
 // Erstellen einer Express Router Instanz
 const router = express.Router();
-
-// ------------------------------------------------------------
-// Dummy Daten
-// ------------------------------------------------------------
-
-// const orders = [
-//   {
-//     order_id: "3453715c-ad43-4611-bc49-988f34386c9d",
-//     dish_name: "Hackfleischröllchen mit Djuvec-Reis und Salat",
-//     dish_price: 12.9,
-//     store_name: "Five Rivers Restaurant",
-//     store_area: "Zone1",
-//     store_lat: 52.52168860493468,
-//     store_lon: 13.384807813113612,
-//     timestamp: new Date(),
-//   },
-//   {
-//     order_id: "61574fa7-ff46-4078-af3a-8228f0a294b7",
-//     dish_name: "Hackfleischröllchen mit Djuvec-Reis und Salat",
-//     dish_price: 12.9,
-//     store_name: "Five Rivers Restaurant",
-//     store_area: "Zone1",
-//     store_lat: 52.52168860493468,
-//     store_lon: 13.384807813113612,
-//     timestamp: new Date(),
-//   },
-//   {
-//     order_id: "c17ff68f-42b4-407f-a64d-e7883ce0dfa9",
-//     dish_name: "Eisbein mit Sauerkraut, Salzkartoffeln und Erbspürree mit Speck",
-//     dish_price: 13.9,
-//     store_name: "Best Worscht",
-//     store_area: "Zone1",
-//     store_lat: 52.510491388069475,
-//     store_lon: 13.380505155941325,
-//     timestamp: new Date(),
-//   },
-//   {
-//     order_id: "1b6d06b4-ec20-4b19-96ee-67d934656b56",
-//     dish_name: "Meeresfrüchtesalat mit Chili und Thai-Kräutem",
-//     dish_price: 11.6,
-//     store_name: "Restaurant Facil",
-//     store_area: "Zone2",
-//     store_lat: 52.509029388326915,
-//     store_lon: 13.373680166244354,
-//     timestamp: new Date(),
-//   },
-// ];
 
 // -------------------------------------------------------
 // Database Configuration
@@ -68,27 +23,96 @@ async function executeQuery(query, data) {
   return await session.sql(query, data).bind(data).execute();
 }
 
+// -------------------------------------------------------
+// Memcache Configuration
+// -------------------------------------------------------
+
+//Connect to the memcached instances
+let memcached = null
+let memcachedServers = []
+const cacheDefaultTTL = 15;
+
+const memcachedConfig = {
+  host: 'my-memcached-service',
+  port: 11211,
+  updateInterval: 5000,
+};
+
+async function getMemcachedServersFromDns() {
+  try {
+    // Query all IP addresses for this hostname
+    let queryResult = await dns.lookup(memcachedConfig.host, { all: true })
+
+    // Create IP:Port mappings
+    let servers = queryResult.map(el => el.address + ":" + memcachedConfig.port)
+
+    // Check if the list of servers has changed
+    // and only create a new object if the server list has changed
+    if (memcachedServers.sort().toString() !== servers.sort().toString()) {
+      console.log("Updated memcached server list to ", servers)
+      memcachedServers = servers
+
+      //Disconnect an existing client
+      if (memcached)
+        await memcached.disconnect()
+
+      memcached = new memcachePlus(memcachedServers);
+    }
+  } catch (e) {
+    console.log("Unable to get memcache servers", e)
+  }
+}
+
+//Initially try to connect to the memcached servers, then each 5s update the list
+getMemcachedServersFromDns()
+setInterval(() => getMemcachedServersFromDns(), memcachedConfig.updateInterval)
+
+//Get data from cache if a cache exists yet
+async function getFromCache(key) {
+  if (!memcached) {
+    console.log(`No memcached instance available, memcachedServers = ${memcachedServers}`)
+    return null;
+  }
+  return await memcached.get(key);
+}
+
+
 // ------------------------------------------------------------
 // Routenhandler
 // ------------------------------------------------------------
 
 async function getOrdersList(maxCount, offset) {
-  const query = `SELECT o.order_id, d.dish_name, d.dish_price, s.store_name, s.store_lat, s.store_lon, o.timestamp
+
+  const cacheKey = 'ordersList';
+  let result = await getFromCache(cacheKey);
+  console.log('Checking cache key ' + cacheKey)
+  if(!result){
+    console.log('Cache empty. Fetching from DB')
+    const query = `SELECT o.order_id, d.dish_name, d.dish_price, s.store_name, s.store_lat, s.store_lon, o.timestamp
                    FROM orders o
                             JOIN dishes d on o.dish_id = d.dish_id
                             JOIN stores s ON s.store_id = o.store_id
                    ORDER BY o.timestamp DESC LIMIT ?
                    OFFSET ?`;
-  const result = (await executeQuery(query, [maxCount, offset])).fetchAll().map((row) => ({
-    order_id: row[0].trim(),
-    dish_name: row[1],
-    dish_price: row[2],
-    store_name: row[3],
-    store_area: "Zone XYZ", // ToDo: DB? Generator?
-    store_lat: row[4],
-    store_lon: row[5],
-    timestamp: row[6],
-  }));
+    result = (await executeQuery(query, [maxCount, offset])).fetchAll().map((row) => ({
+      order_id: row[0].trim(),
+      dish_name: row[1],
+      dish_price: row[2],
+      store_name: row[3],
+      store_area: "Zone XYZ", // ToDo: DB? Generator?
+      store_lat: row[4],
+      store_lon: row[5],
+      timestamp: row[6],
+    }));
+
+    if (memcached) {
+      memcached.set(cacheKey, result, cacheDefaultTTL)
+      console.log('Stored ' + cacheKey + ' in cache');
+    }
+
+  } else {
+    console.log('Serving ' + cacheKey + ' from cache')
+  }
 
   return result;
 }
@@ -146,16 +170,33 @@ router.get("/order/:order_id", (req, res) => {
 // Get popular dishes
 
 async function getPopularDishes(maxCount) {
-  const query = `SELECT d.dish_id, d.dish_name, d.dish_price, p.count
+  const cacheKey = 'popularDishes';
+  let result = await getFromCache(cacheKey);
+  console.log('Checking cache key ' + cacheKey)
+  if(!result){
+    console.log('Cache empty. Fetching from DB')
+    const query = `SELECT d.dish_id, d.dish_name, d.dish_price, p.count
                    FROM popular_dish p
                             JOIN dishes d ON p.dish_id = d.dish_id
                    ORDER BY p.count DESC LIMIT ?;`;
-  return (await executeQuery(query, [maxCount])).fetchAll().map((row) => ({
-    dish_id: row[0],
-    dish_name: row[1],
-    dish_price: row[2],
-    count: row[3],
-  }));
+    result = (await executeQuery(query, [maxCount])).fetchAll().map((row) => ({
+      dish_id: row[0],
+      dish_name: row[1],
+      dish_price: row[2],
+      count: row[3],
+    }));
+
+    if (memcached) {
+      await memcached.set(cacheKey, result, cacheDefaultTTL)
+      console.log('Stored ' + cacheKey + ' in cache');
+    }
+
+  } else {
+    console.log('Serving ' + cacheKey + ' from cache')
+  }
+
+  return result;
+
 }
 
 router.get("popular/dishes/:count", (req, res) => {
@@ -167,18 +208,35 @@ router.get("popular/dishes/:count", (req, res) => {
 // Get popular stores
 
 async function getPopularStores(maxCount) {
-  const query = `SELECT s.store_id, s.store_name, s.store_lat, s.store_lon, p.count
+  const cacheKey = 'popularStores';
+  let result = await getFromCache(cacheKey);
+  console.log('Checking cache key ' + cacheKey)
+
+  if (!result){
+    console.log('Cache empty. Fetching from DB')
+    const query = `SELECT s.store_id, s.store_name, s.store_lat, s.store_lon, p.count
                    FROM popular_dish p
                             JOIN dishes d ON p.dish_id = d.dish_id
                    ORDER BY p.count DESC LIMIT ?;`;
 
-  return (await executeQuery(query, [maxCount])).fetchAll().map((row) => ({
-    store_id: row[0],
-    store_name: row[1],
-    store_lan: row[2],
-    store_lon: row[3],
-    count: row[4],
-  }));
+    result = (await executeQuery(query, [maxCount])).fetchAll().map((row) => ({
+      store_id: row[0],
+      store_name: row[1],
+      store_lan: row[2],
+      store_lon: row[3],
+      count: row[4],
+    }));
+
+    if (memcached) {
+      await memcached.set(cacheKey, result, cacheDefaultTTL)
+      console.log('Stored ' + cacheKey + ' in cache');
+    }
+
+  } else {
+    console.log('Serving ' + cacheKey + ' from cache')
+  }
+
+  return result;
 }
 
 router.get("popular/stores/:count", (req, res) => {
