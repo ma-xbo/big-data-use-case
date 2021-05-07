@@ -175,15 +175,17 @@ async function getPopularDishes(maxCount) {
   console.log('Checking cache key ' + cacheKey)
   if(!result){
     console.log('Cache empty. Fetching from DB')
-    const query = `SELECT d.dish_id, d.dish_name, d.dish_price, p.count
-                   FROM popular_dish p
-                            JOIN dishes d ON p.dish_id = d.dish_id
-                   ORDER BY p.count DESC LIMIT ?;`;
+    const query = `SELECT d.dish_id, d.dish_name, d.dish_price, pd.count, rd.revenue
+                   FROM popular_dish pd
+                            JOIN dishes d ON pd.dish_id = d.dish_id
+                            JOIN revenue_dish rd ON pd.dish_id = rd.dish_id
+                   ORDER BY pd.count DESC LIMIT ?;`;
     result = (await executeQuery(query, [maxCount])).fetchAll().map((row) => ({
       dish_id: row[0],
       dish_name: row[1],
       dish_price: row[2],
       count: row[3],
+      revenue: row[4],
     }));
 
     if (memcached) {
@@ -214,10 +216,11 @@ async function getPopularStores(maxCount) {
 
   if (!result){
     console.log('Cache empty. Fetching from DB')
-    const query = `SELECT s.store_id, s.store_name, s.store_lat, s.store_lon, p.count
-                   FROM popular_dish p
-                            JOIN dishes d ON p.dish_id = d.dish_id
-                   ORDER BY p.count DESC LIMIT ?;`;
+    const query = `SELECT s.store_id, s.store_name, s.store_lat, s.store_lon, cs.count, rs.revenue
+                   FROM count_store cs
+                            JOIN stores s ON cs.store_id = s.store_id
+                            JOIN revenue_sotre rs ON cs.store_id = rs.store_id
+                   ORDER BY rs.revenue DESC LIMIT ?;`;
 
     result = (await executeQuery(query, [maxCount])).fetchAll().map((row) => ({
       store_id: row[0],
@@ -225,6 +228,7 @@ async function getPopularStores(maxCount) {
       store_lan: row[2],
       store_lon: row[3],
       count: row[4],
+      revenue: row[5]
     }));
 
     if (memcached) {
