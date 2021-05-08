@@ -25,12 +25,12 @@ function App() {
             <ul className="navbar-nav d-none d-md-flex">
               <li className="nav-item">
                 <Link className="nav-link" to="/">
-                  Home
+                  Übersicht
                 </Link>
               </li>
               <li className="nav-item">
                 <Link className="nav-link" to="/popular">
-                  Popular
+                  Beliebt
                 </Link>
               </li>
             </ul>
