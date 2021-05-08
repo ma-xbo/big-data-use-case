@@ -81,7 +81,7 @@ dish_revenue = trackingMessages_1.groupBy(
        slidingDuration
    ),
    column("dish_id")
-).sum("price").withColumnRenamed('sum', 'dish_revenue')
+).sum("price").withColumnRenamed('sum(price)', 'dish_revenue')
 
 # Compute most popular stores by count
 store_count = trackingMessages_2.groupBy(
@@ -101,10 +101,18 @@ store_revenue = trackingMessages_3.groupBy(
         slidingDuration
     ),
     column("store_id")
-).sum("price").withColumnRenamed('count', 'store_revenue')
+).sum("price").withColumnRenamed('sum(price)', 'store_revenue')
 
 # Example Part 5
 # Start running the query; print running counts to the console
+consoleDump = trackingMessages_0 \
+    .writeStream \
+    .trigger(processingTime=slidingDuration) \
+    .outputMode("update") \
+    .format("console") \
+    .option("truncate", "false") \
+    .start()
+
 consoleDump = dish_revenue \
     .writeStream \
     .trigger(processingTime=slidingDuration) \
@@ -150,7 +158,7 @@ def saveToDatabase_dish_count(batchDataframe, batchId):
             sql = session.sql("INSERT INTO count_dish "
                               "(dish_id, count) VALUES (?, ?) "
                               "ON DUPLICATE KEY UPDATE count=?")
-            sql.bind(row.dish_id, row.count, row.count).execute()
+            sql.bind(row.dish_id, row.dish_orders, row.dish_orders).execute()
 
         session.close()
 
@@ -169,13 +177,50 @@ def saveToDatabase_dish_revenue(batchDataframe, batchId):
             sql = session.sql("INSERT INTO revenue_dish "
                               "(dish_id, revenue) VALUES (?, ?) "
                               "ON DUPLICATE KEY UPDATE revenue=?")
-            sql.bind(row.dish_id, row.revenue, row.revenue).execute()
+            sql.bind(row.dish_id, row.dish_revenue, row.dish_revenue).execute()
 
         session.close()
 
     # Perform batch UPSERTS per data partition
     batchDataframe.foreachPartition(save_to_db_dish_revenue)
 
+def saveToDatabase_store_count(batchDataframe, batchId):
+    # Define function to save a dataframe to mysql
+    def save_to_db_store_count(iterator):
+        # Connect to database and use schema
+        session = mysqlx.get_session(dbOptions)
+        session.sql("USE popular").execute()
+
+        for row in iterator:
+            # Run upsert (insert or update existing)
+            sql = session.sql("INSERT INTO count_store "
+                              "(store_id, count) VALUES (?, ?) "
+                              "ON DUPLICATE KEY UPDATE count=?")
+            sql.bind(row.store_id, row.store_orders, row.store_orders).execute()
+
+        session.close()
+
+    # Perform batch UPSERTS per data partition
+    batchDataframe.foreachPartition(save_to_db_store_count)
+
+def saveToDatabase_store_revenue(batchDataframe, batchId):
+    # Define function to save a dataframe to mysql
+    def save_to_db_store_revenue(iterator):
+        # Connect to database and use schema
+        session = mysqlx.get_session(dbOptions)
+        session.sql("USE popular").execute()
+
+        for row in iterator:
+            # Run upsert (insert or update existing)
+            sql = session.sql("INSERT INTO revenue_store "
+                              "(store_id, revenue) VALUES (?, ?) "
+                              "ON DUPLICATE KEY UPDATE revenue=?")
+            sql.bind(row.store_id, row.store_revenue, row.store_revenue).execute()
+
+        session.close()
+
+    # Perform batch UPSERTS per data partition
+    batchDataframe.foreachPartition(save_to_db_store_revenue)
 
 # Example Part 7
 dbInsertStream = dish_count.writeStream \
@@ -188,6 +233,18 @@ dbInsertStream = dish_revenue.writeStream \
     .trigger(processingTime=slidingDuration) \
     .outputMode("update") \
     .foreachBatch(saveToDatabase_dish_revenue) \
+    .start()
+
+dbInsertStream = store_count.writeStream \
+    .trigger(processingTime=slidingDuration) \
+    .outputMode("update") \
+    .foreachBatch(saveToDatabase_store_count) \
+    .start()
+
+dbInsertStream = store_revenue.writeStream \
+    .trigger(processingTime=slidingDuration) \
+    .outputMode("update") \
+    .foreachBatch(saveToDatabase_store_revenue) \
     .start()
 
 # Wait for termination
