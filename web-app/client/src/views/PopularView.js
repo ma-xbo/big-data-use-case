@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import classNames from "classnames";
 
 import ViewContainer from "../components/ViewContainer";
 import DashboardContainer from "../components/DashboardContainer";
@@ -8,12 +9,41 @@ import CustomDatagrid from "../components/CustomDatagrid";
 function PopularView() {
   const [popularDishes, setPopularDishes] = useState();
   const [popularStores, setPopularStores] = useState();
+  const [refreshIntervalSeconds, setRefreshIntervalSeconds] = useState(1);
+  const [refreshActive, setRefreshActive] = useState(false);
+  let timer = null;
 
   // Initial fetch of data
   useEffect(() => {
     setPopularDishes(dummyPopularDishes);
     setPopularStores(dummyPopularStores);
+
+    // component unmount
+    return () => {
+      clearInterval(timer);
+    };
   }, []);
+
+  useEffect(() => {
+    console.log("active changed");
+    if (refreshActive) {
+      clearInterval(timer);
+      timer = setInterval(test, refreshIntervalSeconds * 1000);
+    } else {
+      clearInterval(timer);
+      timer=null;
+    }
+  }, [refreshActive]);
+
+  useEffect(() => {
+    console.log("change timer value");
+    if (refreshActive) {
+      clearInterval(timer);
+      timer = setInterval(test, refreshIntervalSeconds * 1000);
+    } else {
+      clearInterval(timer);
+    }
+  }, [refreshIntervalSeconds]);
 
   async function fetchPopularDishes() {
     const maxDishes = 10;
@@ -28,12 +58,82 @@ function PopularView() {
       });
   }
 
+  function test() {
+    console.log("Timer tick");
+  }
+
   return (
     <ViewContainer title="Auswertung der Bestellungen">
-      <DashboardContainer>
-        {popularDishes && <DashboardItem description="Anzahl Bestellungen" value={popularDishes.length} />}
-      </DashboardContainer>
       <div className="container-fluid">
+        <div className="row">
+          <DashboardContainer>
+            {popularDishes && <DashboardItem description="Anzahl Bestellungen" value={popularDishes.length} />}
+          </DashboardContainer>
+        </div>
+        <span className="d-flex flex-row justify-content-between align-items-center bg-light-lm bg-very-dark-dm rounded px-10">
+          <button
+            className="btn d-flex flex-row justify-content-center align-items-center"
+            type="button"
+            onClick={() => {
+              console.log("manual reload");
+            }}
+          >
+            <i className="ri-refresh-line mr-5"></i>
+            <p>Daten aktualisiern</p>
+          </button>
+          <span className="d-flex flex-row justify-content-between align-items-center">
+            <p>Automatisches Aktualisiern der Daten:</p>
+            <span
+              className={classNames("badge", "badge-pill", "m-10", {
+                "badge-primary ": refreshActive,
+              })}
+            >
+              {refreshActive ? refreshIntervalSeconds + "sec" : "off"}
+            </span>
+            <div className="btn-group" role="group" aria-label="Automatische Aktualisierung der Daten">
+              <button
+                className="btn disabled"
+                type="button"
+                onClick={() => {
+                  setRefreshActive(false);
+                  setRefreshIntervalSeconds(1);
+                }}
+              >
+                off
+              </button>
+              <button
+                className="btn disabled"
+                type="button"
+                onClick={() => {
+                  setRefreshActive(true);
+                  setRefreshIntervalSeconds(1);
+                }}
+              >
+                1sec
+              </button>
+              <button
+                className="btn disabled"
+                type="button"
+                onClick={() => {
+                  setRefreshActive(true);
+                  setRefreshIntervalSeconds(5);
+                }}
+              >
+                5sec
+              </button>
+              <button
+                className="btn disabled"
+                type="button"
+                onClick={() => {
+                  setRefreshActive(true);
+                  setRefreshIntervalSeconds(10);
+                }}
+              >
+                10sec
+              </button>
+            </div>
+          </span>
+        </span>
         <div className="row">
           <div className="col-12 col-xl-6 p-5">
             <h5>Beliebteste Gerichte</h5>
