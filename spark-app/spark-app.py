@@ -155,7 +155,7 @@ def saveToDatabase_dish_count(batchDataframe, batchId):
         session.close()
 
     # Perform batch UPSERTS per data partition
-    batchDataframe.foreachPartition(save_to_db)
+    batchDataframe.foreachPartition(save_to_db_dish_count)
 
 def saveToDatabase_dish_revenue(batchDataframe, batchId):
     # Define function to save a dataframe to mysql
@@ -174,7 +174,7 @@ def saveToDatabase_dish_revenue(batchDataframe, batchId):
         session.close()
 
     # Perform batch UPSERTS per data partition
-    batchDataframe.foreachPartition(save_to_db)
+    batchDataframe.foreachPartition(save_to_db_dish_revenue)
 
 
 # Example Part 7
