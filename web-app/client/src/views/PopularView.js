@@ -74,9 +74,7 @@ function PopularView() {
           <button
             className="btn d-flex flex-row justify-content-center align-items-center"
             type="button"
-            onClick={() => {
-              console.log("manual reload");
-            }}
+            onClick={fetchPopularDishes}
           >
             <i className="ri-refresh-line mr-5"></i>
             <p>Daten aktualisiern</p>
