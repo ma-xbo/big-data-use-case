@@ -27,11 +27,9 @@ deploy:
       - k8s/*.yaml
 
 portForward:
-  - resourceType: deployment
+  - resourceType: Deployment
     resourceName: web-app
     port: 5000
-    localPort: 5000
-  - resourceType: deployment
+  - resourceType: Deployment
     resourceName: datagenerator-app
     port: 3000
-    localPort: 3000

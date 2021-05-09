@@ -20,7 +20,8 @@ Die nachfolgenden Schritte müssen einmalig durchgeführt werden, um das Projekt
 1. Starten von Minikube
 
    - Starten von Minikube mit Standardwerten: `minikube start`
-   - Starten von Minikube mit mehr RAM: `minikube --memory 8192 --cpus 4 --driver=docker start`
+   - Starten von Minikube mit mehr RAM über Docker: `minikube start --memory 8192 --cpus 4 --driver=docker`
+   - Starten von Minikube mit mehr RAM über HyperV: `minikube start --memory 8192 --cpus 4 --driver=hyperv`
 
 2. Strimzi.io Kafka operator erstellen und starten
 
@@ -35,6 +36,9 @@ Die nachfolgenden Schritte müssen einmalig durchgeführt werden, um das Projekt
 4. Starten der Anwendung
 
    - Befehl: `skaffold dev`
+   
+Alternativ:
+   - `skaffold run --port-forward=user --tail` zum Beenden muss dann der Befehl `skaffold delete` eingegeben werden
 
 Nachdem der use Case ein mal aufgebaut wurde, müssen nicht alle Schritte erneut durchlaufen werden. Wie der Use Case in den darauffolgenden Malen gestartet werden kann, ist nachfolgend beschrieben.
 
@@ -44,10 +48,12 @@ Das wiederholte Starten des Use Case geht deutlich schneller, als das initiale S
 
 1. Starten von Minikube
 
-   - Starten von Minikube mit mehr RAM: `minikube --memory 8192 --cpus 4 --driver=docker start`
+   - Starten von Minikube mit mehr RAM: `minikube start --memory 8192 --cpus 4 --driver=docker` oder `minikube start --memory 8192 --cpus 4 --driver=hyperv`
 
 2. Starten der Anwendung
+
    - `skaffold dev`
+   - `skaffold run --port-forward=user --tail`
 
 ## Prüfende Schritte
 
@@ -59,8 +65,21 @@ Sobald das Minikube Cluster läuft, sollten die folgenden Schritte geprüft werd
 
 ### Weiterleiten des Ports
 
+Die Ports der Komponenten des K8s Cluster können entweder manuell oder automatisiert weitergeleitet werden.
+
+#### Manueller Port-Forward über kubectl
+
 - Erreichen der Web App über den localhost: `kubectl port-forward service/web-app-service 5000:5000`
 - Erreichen des Data Generator über den localhost: `kubectl port-forward service/datagenerator-app-service 3000:3000`
+
+#### Automatisierter Port-Forward mit skaffold
+
+- Standard: `skaffold dev`
+- Entwicklung des Frontend (Build Prozess wird nicht jedes mal neu angestoßen): `skaffold run --port-forward=user --tail`
+
+Informationen:
+- https://skaffold.dev/docs/references/cli/
+- https://skaffold.dev/docs/pipeline-stages/port-forwarding/
 
 ### Aktivieren des Ingress Addons (Gibt Fehlermeldung)
 
@@ -76,3 +95,4 @@ Nachfolgend sind häufig verwendete Kommandos aufgelistet:
 - `kubectl get all`
 - `kubectl get ingress`
 - `kubectl describe service/web-app-service`
+- Simulieren des Watch Befehls mit PowerShell: `while (1) {cls; kubectl get all;sleep 2}`
