@@ -90,7 +90,7 @@ router.get("/addorder", async (req, res) => {
     //TODO -> Das Hinzufügen der Order in die DB über den Data Generator wird später entfernt
     //     -> Die Funktion wird später von Kafka/Spark übernommen  
     // Hinzufügen der Bestellung in die orders Tabelle der Datenbank
-    mysqlx.getSession(dbSessionConfig).then(function (session) {
+/*     mysqlx.getSession(dbSessionConfig).then(function (session) {
       // Zugriff auf die Orders-Tabelle
       ordersTable = session.getSchema("popular").getTable("orders");
 
@@ -99,7 +99,7 @@ router.get("/addorder", async (req, res) => {
         .insert(["order_id", "dish_id", "store_id", "timestamp"])
         .values([order_mysql.order_id, order_mysql.dish_id, order_mysql.store_id, order_mysql.timestamp])
         .execute();
-    });
+    }); */
 
     // Senden der Tracking-Nachricht an Kafka
     sendTrackingMessage(order_kafka)
@@ -125,7 +125,7 @@ router.get("/addorder", async (req, res) => {
 });
 
 // Temporär zum Erstellen einer Kafka Meldung
-router.get("/addorderkafka", async (req, res) => {
+/* router.get("/addorderkafka", async (req, res) => {
   const stores = (await axios.get("http://localhost:3000/api/masterdata/stores")).data;
   const dishes = (await axios.get("http://localhost:3000/api/masterdata/dishes")).data;
 
@@ -150,6 +150,6 @@ router.get("/addorderkafka", async (req, res) => {
   console.log(
     "Request: " + "Method=" + req.method + ", URL=" + req.originalUrl + "; Response: " + "Status=" + res.statusCode
   );
-});
+}); */
 
 module.exports = router;

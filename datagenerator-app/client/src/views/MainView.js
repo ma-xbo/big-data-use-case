@@ -74,7 +74,7 @@ function MainView() {
   }
 
   async function createBurstEvent() {
-    const url = "http://localhost:3000/api/orders/addorderkafka";
+    const url = "http://localhost:3000/api/orders/addorder";
     fetch(url)
       .then((response) => response.json())
       .then((data) => {
@@ -162,7 +162,7 @@ function MainView() {
 
         <DashboardItemContent title='Erstellen von "Burst" Events'>
           <button className="btn btn-primary btn-rounded my-5" type="button" onClick={createBurstEvent}>
-            Sende 1x Kafka Event
+            1x Bestellung auslösen
           </button>
           <button
             className="btn btn-primary btn-rounded my-5"
@@ -175,7 +175,7 @@ function MainView() {
               }
             }}
           >
-            Sende 10x Kafka Event
+            10x Bestellung auslösen
           </button>
           <button
             className="btn btn-primary btn-rounded my-5"
@@ -188,7 +188,21 @@ function MainView() {
               }
             }}
           >
-            Sende 100x Kafka Event
+            100x Bestellung auslösen
+          </button>
+          <button
+            className="btn btn-primary btn-rounded my-5"
+            type="button"
+            onClick={() => {
+              const maxValue = Math.round(Math.random() * 100);
+              for (let index = 0; index < maxValue; index++) {
+                setTimeout(() => {
+                  createBurstEvent();
+                }, 50);
+              }
+            }}
+          >
+            Random Bestellung auslösen
           </button>
         </DashboardItemContent>
       </DashboardContainer>
@@ -196,10 +210,10 @@ function MainView() {
       <div className="card">
         <h2 className="card-title">Erstellte Burst Events</h2>
         {dataArray.map((item) => (
-          <span className="d-flex flex-row">
+          <span className="d-flex flex-row justify-content-start align-items-center">
             <i className="ri-profile-line"></i>
             <p>{item.order_id}</p>
-            <i className="ri-time-line"></i>
+            <i className="ri-time-line ml-10"></i>
             <p>{new Date(item.timestamp).toLocaleString()}</p>
           </span>
         ))}
