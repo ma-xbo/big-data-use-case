@@ -167,20 +167,20 @@ router.get("/order/:order_id", (req, res) => {
   );
 });
 
-// Get popular dishes
-
+// Funktion zur Abfrage der Popular Dishes aus Cache bzw. der Datenbank
 async function getPopularDishes(maxCount) {
   const cacheKey = 'popularDishes';
   let result = await getFromCache(cacheKey);
-  console.log('Checking cache key ' + cacheKey)
+  console.log('Checking cache key ' + cacheKey);
+
   if(!result){
     console.log('Cache empty. Fetching from DB')
-    const query = `SELECT d.dish_id, d.dish_name, d.dish_price, pd.count, rd.revenue
-                   FROM popular_dish pd
-                            JOIN dishes d ON pd.dish_id = d.dish_id
-                            JOIN revenue_dish rd ON pd.dish_id = rd.dish_id
-                   ORDER BY pd.count DESC LIMIT ?;`;
-    result = (await executeQuery(query, [maxCount])).fetchAll().map((row) => ({
+    const query = `SELECT d.dish_id, d.dish_name, d.dish_price, cd.count, rd.revenue
+                   FROM count_dish cd
+                            JOIN dishes d ON cd.dish_id = d.dish_id
+                            JOIN revenue_dish rd ON cd.dish_id = rd.dish_id
+                   ORDER BY cd.count DESC LIMIT ?;`;
+    result = (await executeQuery(query, maxCount)).fetchAll().map((row) => ({
       dish_id: row[0],
       dish_name: row[1],
       dish_price: row[2],
@@ -198,37 +198,47 @@ async function getPopularDishes(maxCount) {
   }
 
   return result;
-
 }
 
-router.get("popular/dishes/:count", (req, res) => {
-  const maxCount = req.params.count;
+// Router zum Zurückgeben der Popular Dishes an das Frontend
+router.get("/popular/dishes/:count", (req, res) => {
+  const maxCount = parseInt(req.params.count);
 
-  getPopularDishes(maxCount).then((result) => res.json(result));
+  try {
+    getPopularDishes(maxCount).then((result) => {
+      res.json(result);
+    });
+  } catch (error) {
+    console.log(error);
+    res.send(error);
+  }
+
+  console.log(
+    "Request: " + "Method=" + req.method + ", URL=" + req.originalUrl + "; Response: " + "Status=" + res.statusCode
+  );
 });
 
-// Get popular stores
-
+// Funktion zur Abfrage der Popular Stores aus Cache bzw. der Datenbank
 async function getPopularStores(maxCount) {
   const cacheKey = 'popularStores';
   let result = await getFromCache(cacheKey);
-  console.log('Checking cache key ' + cacheKey)
+  console.log('Checking cache key ' + cacheKey);
 
   if (!result){
     console.log('Cache empty. Fetching from DB')
     const query = `SELECT s.store_id, s.store_name, s.store_lat, s.store_lon, cs.count, rs.revenue
                    FROM count_store cs
                             JOIN stores s ON cs.store_id = s.store_id
-                            JOIN revenue_sotre rs ON cs.store_id = rs.store_id
-                   ORDER BY rs.revenue DESC LIMIT ?;`;
+                            JOIN revenue_store rs ON cs.store_id = rs.store_id
+                   ORDER BY cs.count DESC LIMIT ?;`;
 
-    result = (await executeQuery(query, [maxCount])).fetchAll().map((row) => ({
+    result = (await executeQuery(query, maxCount)).fetchAll().map((row) => ({
       store_id: row[0],
       store_name: row[1],
-      store_lan: row[2],
+      store_lat: row[2],
       store_lon: row[3],
       count: row[4],
-      revenue: row[5]
+      revenue: row[5],
     }));
 
     if (memcached) {
@@ -239,14 +249,25 @@ async function getPopularStores(maxCount) {
   } else {
     console.log('Serving ' + cacheKey + ' from cache')
   }
-
   return result;
 }
 
-router.get("popular/stores/:count", (req, res) => {
-  const maxCount = req.params.count;
+// Router zum Zurückgeben der Popular Stores an das Frontend
+router.get("/popular/stores/:count", (req, res) => {
+  const maxCount = parseInt(req.params.count);
 
-  getPopularStores(maxCount).then((result) => res.json(result));
+  try {
+    getPopularStores(maxCount).then((result) => {
+      res.json(result);
+    });
+  } catch (error) {
+    console.log(error);
+    res.send(error);
+  }
+
+  console.log(
+    "Request: " + "Method=" + req.method + ", URL=" + req.originalUrl + "; Response: " + "Status=" + res.statusCode
+  );
 });
 
 module.exports = router;
