@@ -181,7 +181,7 @@ async function getPopularDishes(maxCount) {
                             JOIN revenue_dish rd ON cd.dish_id = rd.dish_id
                    ORDER BY cd.count DESC LIMIT ?;`;
     result = (await executeQuery(query, maxCount)).fetchAll().map((row) => ({
-      dish_id: row[0],
+      dish_id: row[0].trim(),
       dish_name: row[1],
       dish_price: row[2],
       count: row[3],
@@ -233,7 +233,7 @@ async function getPopularStores(maxCount) {
                    ORDER BY cs.count DESC LIMIT ?;`;
 
     result = (await executeQuery(query, maxCount)).fetchAll().map((row) => ({
-      store_id: row[0],
+      store_id: row[0].trim(),
       store_name: row[1],
       store_lat: row[2],
       store_lon: row[3],
