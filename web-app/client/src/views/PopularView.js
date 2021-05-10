@@ -31,7 +31,7 @@ function PopularView() {
       timer = setInterval(test, refreshIntervalSeconds * 1000);
     } else {
       clearInterval(timer);
-      timer=null;
+      timer = null;
     }
   }, [refreshActive]);
 
@@ -48,13 +48,23 @@ function PopularView() {
   async function fetchPopularDishes() {
     const maxDishes = 10;
     const url = "http://localhost:5000/api/popular/dishes/" + maxDishes;
-    await fetch(url)
+    fetch(url)
       .then((response) => response.json())
       .then((data) => {
         data.map((row) => {
           row.dish_price = row.dish_price.toFixed(2) + "€";
         });
         setPopularDishes(data);
+      });
+  }
+
+  async function fetchPopularStores() {
+    const maxStores = 10;
+    const url = "http://localhost:5000/api/popular/stores/" + maxStores;
+    fetch(url)
+      .then((response) => response.json())
+      .then((data) => {
+        setPopularStores(data);
       });
   }
 
@@ -74,7 +84,10 @@ function PopularView() {
           <button
             className="btn d-flex flex-row justify-content-center align-items-center"
             type="button"
-            onClick={fetchPopularDishes}
+            onClick={() => {
+              fetchPopularDishes();
+              fetchPopularStores();
+            }}
           >
             <i className="ri-refresh-line mr-5"></i>
             <p>Daten aktualisiern</p>
