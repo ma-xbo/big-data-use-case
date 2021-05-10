@@ -95,4 +95,15 @@ Nachfolgend sind häufig verwendete Kommandos aufgelistet:
 - `kubectl get all`
 - `kubectl get ingress`
 - `kubectl describe service/web-app-service`
-- Simulieren des Watch Befehls mit PowerShell: `while (1) {cls; kubectl get all;sleep 2}`
+
+### PowerShell Skript zum Aktualisieren des Pod Status
+
+Befehl: `while (1) {cls; kubectl get pods;sleep 2}`
+
+### Überprüfen der Daten in MySql
+
+1. Ausführen des Befehls `kubectl exec pod/mysql-deployment-7757cfc6b4-k55br -it -- bash` um Zugriff auf den MySql Pod zu bekommen
+2. Befehl: `mysql --user=root --password` Anschließend muss das Passwort "mysecretpw" eingegeben werden
+3. Befehl: `show databases;` zum Anzeigen der angelegten Datenbanken
+4. Befehl: `USE popular;` zum nachfolgenden Zugreifen auf die Tabellen der Datenbank "popular"
+5. Befehl: `SELECT * FROM count_store;` Beispielhafte SQL Abfrage
