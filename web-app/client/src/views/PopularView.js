@@ -7,16 +7,16 @@ import DashboardItem from "../components/DashboardItem";
 import CustomDatagrid from "../components/CustomDatagrid";
 
 function PopularView() {
-  const [popularDishes, setPopularDishes] = useState();
-  const [popularStores, setPopularStores] = useState();
+  const [popularDishes, setPopularDishes] = useState([]);
+  const [popularStores, setPopularStores] = useState([]);
   const [refreshIntervalSeconds, setRefreshIntervalSeconds] = useState(1);
   const [refreshActive, setRefreshActive] = useState(false);
   let timer = null;
 
   // Initial fetch of data
   useEffect(() => {
-    setPopularDishes(dummyPopularDishes);
-    setPopularStores(dummyPopularStores);
+    fetchPopularDishes();
+    fetchPopularStores();
 
     // component unmount
     return () => {
@@ -31,7 +31,7 @@ function PopularView() {
       timer = setInterval(test, refreshIntervalSeconds * 1000);
     } else {
       clearInterval(timer);
-      timer=null;
+      timer = null;
     }
   }, [refreshActive]);
 
@@ -48,13 +48,23 @@ function PopularView() {
   async function fetchPopularDishes() {
     const maxDishes = 10;
     const url = "http://localhost:5000/api/popular/dishes/" + maxDishes;
-    await fetch(url)
+    fetch(url)
       .then((response) => response.json())
       .then((data) => {
         data.map((row) => {
           row.dish_price = row.dish_price.toFixed(2) + "€";
         });
         setPopularDishes(data);
+      });
+  }
+
+  async function fetchPopularStores() {
+    const maxStores = 10;
+    const url = "http://localhost:5000/api/popular/stores/" + maxStores;
+    fetch(url)
+      .then((response) => response.json())
+      .then((data) => {
+        setPopularStores(data);
       });
   }
 
@@ -65,16 +75,14 @@ function PopularView() {
   return (
     <ViewContainer title="Auswertung der Bestellungen">
       <div className="container-fluid">
-        <div className="row">
-          <DashboardContainer>
-            {popularDishes && <DashboardItem description="Anzahl Bestellungen" value={popularDishes.length} />}
-          </DashboardContainer>
-        </div>
         <span className="d-flex flex-row justify-content-between align-items-center bg-light-lm bg-very-dark-dm rounded px-10">
           <button
             className="btn d-flex flex-row justify-content-center align-items-center"
             type="button"
-            onClick={fetchPopularDishes}
+            onClick={() => {
+              fetchPopularDishes();
+              fetchPopularStores();
+            }}
           >
             <i className="ri-refresh-line mr-5"></i>
             <p>Daten aktualisiern</p>
@@ -135,11 +143,19 @@ function PopularView() {
         <div className="row">
           <div className="col-12 col-xl-6 p-5">
             <h5>Beliebteste Gerichte</h5>
-            <CustomDatagrid columns={columnsPopularDishes} rows={popularDishes} />
+            {popularDishes.length ? (
+              <CustomDatagrid columns={columnsPopularDishes} rows={popularDishes} />
+            ) : (
+              <div>Es sind keine Daten vorhanden</div>
+            )}
           </div>
           <div className="col-12 col-xl-6 p-5">
             <h5>Beliebteste Restaurants</h5>
-            <CustomDatagrid columns={columnsPopularStores} rows={popularStores} />
+            {popularStores.length ? (
+              <CustomDatagrid columns={columnsPopularStores} rows={popularStores} />
+            ) : (
+              <div>Es sind keine Daten vorhanden</div>
+            )}
           </div>
         </div>
       </div>
