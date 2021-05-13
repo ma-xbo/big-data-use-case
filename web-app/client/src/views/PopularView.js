@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import classNames from "classnames";
 
+import { useInterval } from "../helper/customHooks";
 import ViewContainer from "../components/ViewContainer";
 import DashboardContainer from "../components/DashboardContainer";
 import DashboardItem from "../components/DashboardItem";
@@ -10,40 +11,22 @@ function PopularView() {
   const [popularDishes, setPopularDishes] = useState([]);
   const [popularStores, setPopularStores] = useState([]);
   const [refreshIntervalSeconds, setRefreshIntervalSeconds] = useState(1);
-  const [refreshActive, setRefreshActive] = useState(false);
-  let timer = null;
+  const [isRefreshActive, setIsRefreshActive] = useState(false);
 
   // Initial fetch of data
   useEffect(() => {
     fetchPopularDishes();
     fetchPopularStores();
-
-    // component unmount
-    return () => {
-      clearInterval(timer);
-    };
   }, []);
 
-  useEffect(() => {
-    console.log("active changed");
-    if (refreshActive) {
-      clearInterval(timer);
-      timer = setInterval(test, refreshIntervalSeconds * 1000);
-    } else {
-      clearInterval(timer);
-      timer = null;
-    }
-  }, [refreshActive]);
-
-  useEffect(() => {
-    console.log("change timer value");
-    if (refreshActive) {
-      clearInterval(timer);
-      timer = setInterval(test, refreshIntervalSeconds * 1000);
-    } else {
-      clearInterval(timer);
-    }
-  }, [refreshIntervalSeconds]);
+  // Automatic, timebased fetch of data with custom hook
+  useInterval(
+    () => {
+      fetchPopularDishes();
+      fetchPopularStores();
+    },
+    isRefreshActive ? refreshIntervalSeconds * 1000 : null
+  );
 
   async function fetchPopularDishes() {
     const maxDishes = 10;
@@ -53,6 +36,7 @@ function PopularView() {
       .then((data) => {
         data.map((row) => {
           row.dish_price = row.dish_price.toFixed(2) + "€";
+          return row;
         });
         setPopularDishes(data);
       });
@@ -66,10 +50,6 @@ function PopularView() {
       .then((data) => {
         setPopularStores(data);
       });
-  }
-
-  function test() {
-    console.log("Timer tick");
   }
 
   return (
@@ -91,51 +71,50 @@ function PopularView() {
             <p>Automatisches Aktualisiern der Daten:</p>
             <span
               className={classNames("badge", "badge-pill", "m-10", {
-                "badge-primary ": refreshActive,
+                "badge-primary ": isRefreshActive,
               })}
             >
-              {refreshActive ? refreshIntervalSeconds + "sec" : "off"}
+              {isRefreshActive ? refreshIntervalSeconds + "sec" : "off"}
             </span>
             <div className="btn-group" role="group" aria-label="Automatische Aktualisierung der Daten">
               <button
-                className="btn disabled"
+                className="btn"
                 type="button"
                 onClick={() => {
-                  setRefreshActive(false);
-                  setRefreshIntervalSeconds(1);
+                  setIsRefreshActive(false);
                 }}
               >
                 off
               </button>
               <button
-                className="btn disabled"
+                className="btn"
                 type="button"
                 onClick={() => {
-                  setRefreshActive(true);
-                  setRefreshIntervalSeconds(1);
-                }}
-              >
-                1sec
-              </button>
-              <button
-                className="btn disabled"
-                type="button"
-                onClick={() => {
-                  setRefreshActive(true);
-                  setRefreshIntervalSeconds(5);
-                }}
-              >
-                5sec
-              </button>
-              <button
-                className="btn disabled"
-                type="button"
-                onClick={() => {
-                  setRefreshActive(true);
+                  setIsRefreshActive(true);
                   setRefreshIntervalSeconds(10);
                 }}
               >
                 10sec
+              </button>
+              <button
+                className="btn"
+                type="button"
+                onClick={() => {
+                  setIsRefreshActive(true);
+                  setRefreshIntervalSeconds(30);
+                }}
+              >
+                30sec
+              </button>
+              <button
+                className="btn"
+                type="button"
+                onClick={() => {
+                  setIsRefreshActive(true);
+                  setRefreshIntervalSeconds(60);
+                }}
+              >
+                1min
               </button>
             </div>
           </span>
@@ -169,14 +148,6 @@ const columnsPopularDishes = [
   { key: "dish_price", name: "Preis" },
   { key: "count", name: "Anzahl" },
 ];
-const dummyPopularDishes = [
-  { dish_id: "jshad", dish_name: "Test1", dish_price: 13.7, count: 23 },
-  { dish_id: "sjkak", dish_name: "Test2", dish_price: 14.7, count: 20 },
-  { dish_id: "qiuwz", dish_name: "Test3", dish_price: 11.23, count: 17 },
-  { dish_id: "sadda", dish_name: "Test4", dish_price: 12.2, count: 13 },
-  { dish_id: "lklaa", dish_name: "Test5", dish_price: 9.25, count: 12 },
-  { dish_id: "jnasj", dish_name: "Test6", dish_price: 18.7, count: 9 },
-];
 
 const columnsPopularStores = [
   { key: "store_id", name: "ID" },
@@ -184,14 +155,6 @@ const columnsPopularStores = [
   { key: "store_lat", name: "Latitude" },
   { key: "store_lon", name: "Longitude" },
   { key: "count", name: "Anzahl" },
-];
-const dummyPopularStores = [
-  { store_id: "jshad", store_name: "Test1", store_lat: 13.7, store_lon: 13.7, count: 23 },
-  { store_id: "sjkak", store_name: "Test2", store_lat: 14.7, store_lon: 14.7, count: 20 },
-  { store_id: "qiuwz", store_name: "Test3", store_lat: 11.23, store_lon: 11.23, count: 17 },
-  { store_id: "sadda", store_name: "Test4", store_lat: 12.2, store_lon: 12.2, count: 13 },
-  { store_id: "lklaa", store_name: "Test5", store_lat: 9.25, store_lon: 9.25, count: 12 },
-  { store_id: "jnasj", store_name: "Test6", store_lat: 18.7, store_lon: 18.7, count: 9 },
 ];
 
 export default PopularView;
