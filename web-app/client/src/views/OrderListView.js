@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+
+import { stickyAlert } from "../helper/stickyAlert";
 import ViewContainer from "../components/ViewContainer";
 import DashboardContainer from "../components/DashboardContainer";
 import DashboardItem from "../components/DashboardItem";
@@ -19,17 +21,26 @@ function OrderListView() {
             row.timestamp = new Date(row.timestamp).toLocaleString();
           });
           setData(data);
+          stickyAlert({
+            title: "Gerichte geladen",
+            content: "Die Liste der Bestellungen wurden geladen",
+            dismissible: true,
+            color: "success",
+            timeShown: 3000,
+          });
+        })
+        .catch((error) => {
+          stickyAlert({
+            title: "Fehler aufgetreten",
+            content: error,
+            dismissible: true,
+            color: "danger",
+            timeShown: 5000,
+          });
         });
     }
     fetchData();
   }, []);
-
-  const columns = [
-    { key: "dish_name", name: "Name" },
-    { key: "dish_price", name: "Preis" },
-    { key: "store_name", name: "Geschäft" },
-    { key: "timestamp", name: "Zeitpunkt" },
-  ];
 
   return (
     <ViewContainer title="Übersicht der Bestellungen">
@@ -46,5 +57,12 @@ function OrderListView() {
     </ViewContainer>
   );
 }
+
+const columns = [
+  { key: "dish_name", name: "Name" },
+  { key: "dish_price", name: "Preis" },
+  { key: "store_name", name: "Geschäft" },
+  { key: "timestamp", name: "Zeitpunkt" },
+];
 
 export default OrderListView;

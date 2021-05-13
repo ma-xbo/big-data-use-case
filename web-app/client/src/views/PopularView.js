@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import classNames from "classnames";
 
 import { useInterval } from "../helper/customHooks";
+import { stickyAlert } from "../helper/stickyAlert";
 import ViewContainer from "../components/ViewContainer";
 import DashboardContainer from "../components/DashboardContainer";
 import DashboardItem from "../components/DashboardItem";
@@ -39,6 +40,22 @@ function PopularView() {
           return row;
         });
         setPopularDishes(data);
+        stickyAlert({
+          title: "Beliebte Gerichte neu geladen 🍲",
+          content: "Die Daten bezüglich der beliebtesten Gerichte wurde aktualisiert",
+          dismissible: true,
+          color: "success",
+          timeShown: 3000,
+        });
+      })
+      .catch((error) => {
+        stickyAlert({
+          title: "Fehler aufgetreten",
+          content: error,
+          dismissible: true,
+          color: "danger",
+          timeShown: 5000,
+        });
       });
   }
 
@@ -49,6 +66,22 @@ function PopularView() {
       .then((response) => response.json())
       .then((data) => {
         setPopularStores(data);
+        stickyAlert({
+          title: "Beliebte Restaurants neu geladen 🍽️",
+          content: "Die Daten bezüglich der beliebtesten Restaurants wurde aktualisiert",
+          dismissible: true,
+          color: "success",
+          timeShown: 3000,
+        });
+      })
+      .catch((error) => {
+        stickyAlert({
+          title: "Fehler aufgetreten",
+          content: error,
+          dismissible: true,
+          color: "danger",
+          timeShown: 5000,
+        });
       });
   }
 
