@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+
+import { stickyAlert } from "../helper/stickyAlert";
 import ViewContainer from "../components/ViewContainer";
 
 function OrderDetailsView(props) {
@@ -16,6 +18,22 @@ function OrderDetailsView(props) {
           data.dish_price = data.dish_price.toFixed(2) + "€";
           data.timestamp = new Date(data.timestamp).toLocaleString();
           setOrderDetails(data);
+          stickyAlert({
+            title: "Informationen geladen",
+            content: "Die Details zu der Bestellung wurden geladen",
+            dismissible: true,
+            color: "success",
+            timeShown: 3000,
+          });
+        })
+        .catch((error) => {
+          stickyAlert({
+            title: "Fehler aufgetreten",
+            content: error,
+            dismissible: true,
+            color: "danger",
+            timeShown: 5000,
+          });
         });
     }
     fetchData();
@@ -43,7 +61,7 @@ function OrderDetailsView(props) {
                 center={[orderDetails.store_lat, orderDetails.store_lon]}
                 zoom={13}
                 scrollWheelZoom={false}
-                style={{ height: "300px" }}
+                style={{ height: "500px" }}
               >
                 <TileLayer
                   attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'

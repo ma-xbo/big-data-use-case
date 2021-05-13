@@ -17,6 +17,7 @@ function App() {
     <Router>
       <div className="App">
         <div className="page-wrapper with-navbar">
+          <div id="halfmoon-stickyalerts-container" className="sticky-alerts" />
           <nav className="navbar">
             <Link className="navbar-brand" to="/">
               <i className="ri-restaurant-2-line mr-5"></i>
