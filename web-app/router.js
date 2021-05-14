@@ -28,12 +28,12 @@ async function executeQuery(query, data) {
 // -------------------------------------------------------
 
 //Connect to the memcached instances
-let memcached = null
-let memcachedServers = []
+let memcached = null;
+let memcachedServers = [];
 const cacheDefaultTTL = 15;
 
 const memcachedConfig = {
-  host: 'my-memcached-service',
+  host: "my-memcached-service",
   port: 11211,
   updateInterval: 5000,
 };
@@ -41,53 +41,52 @@ const memcachedConfig = {
 async function getMemcachedServersFromDns() {
   try {
     // Query all IP addresses for this hostname
-    let queryResult = await dns.lookup(memcachedConfig.host, { all: true })
+    let queryResult = await dns.lookup(memcachedConfig.host, { all: true });
 
     // Create IP:Port mappings
-    let servers = queryResult.map(el => el.address + ":" + memcachedConfig.port)
+    let servers = queryResult.map((el) => el.address + ":" + memcachedConfig.port);
 
     // Check if the list of servers has changed
     // and only create a new object if the server list has changed
     if (memcachedServers.sort().toString() !== servers.sort().toString()) {
-      console.log("Updated memcached server list to ", servers)
-      memcachedServers = servers
+      console.log("Updated memcached server list to ", servers);
+      memcachedServers = servers;
 
       //Disconnect an existing client
-      if (memcached)
-        await memcached.disconnect()
+      if (memcached) await memcached.disconnect();
 
       memcached = new memcachePlus(memcachedServers);
     }
   } catch (e) {
-    console.log("Unable to get memcache servers", e)
+    console.log("Unable to get memcache servers", e);
   }
 }
 
 //Initially try to connect to the memcached servers, then each 5s update the list
-getMemcachedServersFromDns()
-setInterval(() => getMemcachedServersFromDns(), memcachedConfig.updateInterval)
+getMemcachedServersFromDns();
+setInterval(() => getMemcachedServersFromDns(), memcachedConfig.updateInterval);
 
 //Get data from cache if a cache exists yet
 async function getFromCache(key) {
   if (!memcached) {
-    console.log(`No memcached instance available, memcachedServers = ${memcachedServers}`)
+    console.log(`No memcached instance available, memcachedServers = ${memcachedServers}`);
     return null;
   }
   return await memcached.get(key);
 }
-
 
 // ------------------------------------------------------------
 // Routenhandler
 // ------------------------------------------------------------
 
 async function getOrdersList(maxCount, offset) {
-
-  const cacheKey = 'ordersList';
+  const cacheKey = "ordersList";
   let result = await getFromCache(cacheKey);
-  console.log('Checking cache key ' + cacheKey)
-  if(!result){
-    console.log('Cache empty. Fetching from DB')
+  let cached = false;
+  console.log("Checking cache key " + cacheKey);
+
+  if (!result) {
+    console.log("Cache empty. Fetching from DB");
     const query = `SELECT o.order_id, d.dish_name, d.dish_price, s.store_name, s.store_lat, s.store_lon, o.timestamp
                    FROM orders o
                             JOIN dishes d on o.dish_id = d.dish_id
@@ -106,14 +105,16 @@ async function getOrdersList(maxCount, offset) {
     }));
 
     if (memcached) {
-      memcached.set(cacheKey, result, cacheDefaultTTL)
-      console.log('Stored ' + cacheKey + ' in cache');
+      memcached.set(cacheKey, result, cacheDefaultTTL);
+      console.log("Stored " + cacheKey + " in cache");
     }
-
+    cached = false;
   } else {
-    console.log('Serving ' + cacheKey + ' from cache')
+    console.log("Serving " + cacheKey + " from cache");
+    cached = true;
   }
-
+  //TODO
+  //return { orders: result, cached: cached };
   return result;
 }
 
@@ -169,12 +170,13 @@ router.get("/order/:order_id", (req, res) => {
 
 // Funktion zur Abfrage der Popular Dishes aus Cache bzw. der Datenbank
 async function getPopularDishes(maxCount) {
-  const cacheKey = 'popularDishes';
+  const cacheKey = "popularDishes";
+  let cached = false;
   let result = await getFromCache(cacheKey);
-  console.log('Checking cache key ' + cacheKey);
+  console.log("Checking cache key " + cacheKey);
 
-  if(!result){
-    console.log('Cache empty. Fetching from DB')
+  if (!result) {
+    console.log("Cache empty. Fetching from DB");
     const query = `SELECT d.dish_id, d.dish_name, d.dish_price, cd.count, rd.revenue
                    FROM count_dish cd
                             JOIN dishes d ON cd.dish_id = d.dish_id
@@ -189,15 +191,16 @@ async function getPopularDishes(maxCount) {
     }));
 
     if (memcached) {
-      await memcached.set(cacheKey, result, cacheDefaultTTL)
-      console.log('Stored ' + cacheKey + ' in cache');
+      await memcached.set(cacheKey, result, cacheDefaultTTL);
+      console.log("Stored " + cacheKey + " in cache");
     }
-
+    cached = false;
   } else {
-    console.log('Serving ' + cacheKey + ' from cache')
+    console.log("Serving " + cacheKey + " from cache");
+    cached = true;
   }
 
-  return result;
+  return { dishes: result, cached: cached };
 }
 
 // Router zum Zurückgeben der Popular Dishes an das Frontend
@@ -220,12 +223,13 @@ router.get("/popular/dishes/:count", (req, res) => {
 
 // Funktion zur Abfrage der Popular Stores aus Cache bzw. der Datenbank
 async function getPopularStores(maxCount) {
-  const cacheKey = 'popularStores';
+  const cacheKey = "popularStores";
+  let cached = false;
   let result = await getFromCache(cacheKey);
-  console.log('Checking cache key ' + cacheKey);
+  console.log("Checking cache key " + cacheKey);
 
-  if (!result){
-    console.log('Cache empty. Fetching from DB')
+  if (!result) {
+    console.log("Cache empty. Fetching from DB");
     const query = `SELECT s.store_id, s.store_name, s.store_lat, s.store_lon, cs.count, rs.revenue
                    FROM count_store cs
                             JOIN stores s ON cs.store_id = s.store_id
@@ -242,14 +246,16 @@ async function getPopularStores(maxCount) {
     }));
 
     if (memcached) {
-      await memcached.set(cacheKey, result, cacheDefaultTTL)
-      console.log('Stored ' + cacheKey + ' in cache');
+      await memcached.set(cacheKey, result, cacheDefaultTTL);
+      console.log("Stored " + cacheKey + " in cache");
     }
-
+    cached = false;
   } else {
-    console.log('Serving ' + cacheKey + ' from cache')
+    console.log("Serving " + cacheKey + " from cache");
+    cached = true;
   }
-  return result;
+
+  return { stores: result, cached: cached };
 }
 
 // Router zum Zurückgeben der Popular Stores an das Frontend
