@@ -35,14 +35,22 @@ function PopularView() {
     fetch(url)
       .then((response) => response.json())
       .then((data) => {
-        data.map((row) => {
+        const dishes = data.dishes;
+        const isCached = data.cached;
+        dishes.map((row) => {
           row.dish_price = row.dish_price.toFixed(2) + "€";
           return row;
         });
-        setPopularDishes(data);
+        setPopularDishes(dishes);
+
+        let alerText = "";
+        isCached
+          ? (alerText = "Die beliebtesten Gerichte wurden aus dem Cache geladen")
+          : (alerText = "Die beliebtesten Gerichte wurden aus der Datenbank geladen");
+
         stickyAlert({
           title: "Beliebte Gerichte neu geladen 🍲",
-          content: "Die Daten bezüglich der beliebtesten Gerichte wurde aktualisiert",
+          content: alerText,
           dismissible: true,
           color: "success",
           timeShown: 3000,
@@ -65,10 +73,18 @@ function PopularView() {
     fetch(url)
       .then((response) => response.json())
       .then((data) => {
-        setPopularStores(data);
+        const stores = data.stores;
+        const isCached = data.cached;
+        setPopularStores(stores);
+
+        let alerText = "";
+        isCached
+          ? (alerText = "Die beliebtesten Restaurants wurden aus dem Cache geladen")
+          : (alerText = "Die beliebtesten Restaurants wurden aus der Datenbank geladen");
+
         stickyAlert({
           title: "Beliebte Restaurants neu geladen 🍽️",
-          content: "Die Daten bezüglich der beliebtesten Restaurants wurde aktualisiert",
+          content: alerText,
           dismissible: true,
           color: "success",
           timeShown: 3000,
@@ -154,7 +170,7 @@ function PopularView() {
         </span>
         <div className="row">
           <div className="col-12 col-xl-6 p-5">
-            <h5>Beliebteste Gerichte</h5>
+            <h5>Auflistung der beliebtesten Gerichte</h5>
             {popularDishes.length ? (
               <CustomDatagrid columns={columnsPopularDishes} rows={popularDishes} />
             ) : (
@@ -162,7 +178,7 @@ function PopularView() {
             )}
           </div>
           <div className="col-12 col-xl-6 p-5">
-            <h5>Beliebteste Restaurants</h5>
+            <h5>Auflistung der beliebtesten Restaurants</h5>
             {popularStores.length ? (
               <CustomDatagrid columns={columnsPopularStores} rows={popularStores} />
             ) : (
