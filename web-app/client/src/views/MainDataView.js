@@ -64,6 +64,27 @@ function MainDataView() {
         <div className="row">
           <div className="col-12 col-xl-6 pr-5">
             <h5>Auflistung der angelegten Gerichte</h5>
+            <span className="d-flex flex-row justify-content-start align-items-center my-10">
+              <button
+                className="btn btn-square mr-5"
+                type="button"
+                onClick={() => {
+                  fetchDishes();
+                }}
+              >
+                <i className="ri-refresh-line"></i>
+              </button>
+              <button
+                className="btn btn-primary d-flex flex-row justify-content-center align-items-center"
+                type="button"
+                onClick={() => {
+                  console.log("Open new dish modal");
+                }}
+              >
+                <i className="ri-add-circle-line mr-5"></i>
+                <p>Gericht hinzufügen</p>
+              </button>
+            </span>
             {dishes.length ? (
               <CustomDatagrid columns={columnsDishes} rows={dishes} />
             ) : (
@@ -72,6 +93,28 @@ function MainDataView() {
           </div>
           <div className="col-12 col-xl-6 pl-5">
             <h5>Auflistung der angelegten Restaurants</h5>
+            <span className="d-flex flex-row justify-content-start align-items-center my-10">
+              <button
+                className="btn btn-square mr-5"
+                type="button"
+                onClick={() => {
+                  //TODO
+                  //fetchDishes();
+                }}
+              >
+                <i className="ri-refresh-line"></i>
+              </button>
+              <button
+                className="btn btn-primary d-flex flex-row justify-content-center align-items-center"
+                type="button"
+                onClick={() => {
+                  console.log("Open new dish modal");
+                }}
+              >
+                <i className="ri-add-circle-line mr-5"></i>
+                <p>Restaurant hinzufügen</p>
+              </button>
+            </span>
             {stores.length ? (
               <CustomDatagrid columns={columnsStores} rows={stores} />
             ) : (
