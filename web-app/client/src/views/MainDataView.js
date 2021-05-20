@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from "react";
-import classNames from "classnames";
 
 import { stickyAlert } from "../helper/stickyAlert";
 import ViewContainer from "../components/ViewContainer";
 import DashboardContainer from "../components/DashboardContainer";
 import DashboardItem from "../components/DashboardItem";
 import CustomDatagrid from "../components/CustomDatagrid";
+import NewDishModal from "../components/NewDishModal";
 
 function MainDataView() {
   const [dishes, setDishes] = useState([]);
   const [stores, setStores] = useState([]);
+  const [isNewDishModalOpen, setIsNewDishModalOpen] = useState(false);
+  const [isNewStoreModalOpen, setIsNewStoreModalOpen] = useState(false);
 
   // Initial fetch of data
   useEffect(() => {
@@ -56,6 +58,7 @@ function MainDataView() {
 
   return (
     <ViewContainer title="Übersicht der Stammdaten">
+      <NewDishModal isOpen={isNewDishModalOpen} onClose={() => setIsNewDishModalOpen(false)} />
       <DashboardContainer>
         <DashboardItem description="Anzahl Gerichte" value={dishes.length} />
         <DashboardItem description="Anzahl Restaurants" value={stores.length} />
@@ -77,9 +80,7 @@ function MainDataView() {
               <button
                 className="btn btn-primary d-flex flex-row justify-content-center align-items-center"
                 type="button"
-                onClick={() => {
-                  console.log("Open new dish modal");
-                }}
+                onClick={() => setIsNewDishModalOpen(true)}
               >
                 <i className="ri-add-circle-line mr-5"></i>
                 <p>Gericht hinzufügen</p>
@@ -107,9 +108,7 @@ function MainDataView() {
               <button
                 className="btn btn-primary d-flex flex-row justify-content-center align-items-center"
                 type="button"
-                onClick={() => {
-                  console.log("Open new dish modal");
-                }}
+                onClick={() => setIsNewStoreModalOpen(true)}
               >
                 <i className="ri-add-circle-line mr-5"></i>
                 <p>Restaurant hinzufügen</p>
