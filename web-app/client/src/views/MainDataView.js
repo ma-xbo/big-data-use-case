@@ -6,6 +6,7 @@ import DashboardContainer from "../components/DashboardContainer";
 import DashboardItem from "../components/DashboardItem";
 import CustomDatagrid from "../components/CustomDatagrid";
 import NewDishModal from "../components/NewDishModal";
+import NewRestaurantModal from "../components/NewRestaurantModal";
 
 function MainDataView() {
   const [dishes, setDishes] = useState([]);
@@ -59,6 +60,7 @@ function MainDataView() {
   return (
     <ViewContainer title="Übersicht der Stammdaten">
       <NewDishModal isOpen={isNewDishModalOpen} onClose={() => setIsNewDishModalOpen(false)} />
+      <NewRestaurantModal isOpen={isNewStoreModalOpen} onClose={() => setIsNewStoreModalOpen(false)} />
       <DashboardContainer>
         <DashboardItem description="Anzahl Gerichte" value={dishes.length} />
         <DashboardItem description="Anzahl Restaurants" value={stores.length} />
