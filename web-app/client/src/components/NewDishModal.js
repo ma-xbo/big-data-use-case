@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import classNames from "classnames";
+
+import { stickyAlert } from "../helper/stickyAlert";
 import CustomModal from "../components/CustomModal";
 
 function NewDishModal(props) {
@@ -34,10 +36,39 @@ function NewDishModal(props) {
 
   async function postNewDish() {
     const data = { dish_name: dishName, dish_price: Number(dishPrice) };
-    console.log(data);
-    onClose();
-    setDishName("");
-    setDishPrice(0.0);
+    const url = "http://localhost:5000/api/masterdata/dish";
+    fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    })
+      .then((response) => {
+        if (response.status === 200) {
+          stickyAlert({
+            title: "Neues Gericht angelegt",
+            content: 'Das Gericht "' + dishName + '" wurde erfolgreich in der Datenbank gespeichert',
+            dismissible: true,
+            color: "success",
+            timeShown: 3000,
+          });
+          onClose();
+          setDishName("");
+          setDishPrice(0.0);
+        } else {
+          stickyAlert({
+            title: "Fehler aufgetreten",
+            content: "Beim Versuch die Daten zu speichern ist ein Fehler aufgetreten",
+            dismissible: true,
+            color: "danger",
+            timeShown: 3000,
+          });
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
   }
 
   return (
