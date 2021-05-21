@@ -2,7 +2,6 @@ const express = require("express");
 const mysqlx = require("@mysql/xdevapi");
 const dns = require("dns").promises;
 const memcachePlus = require("memcache-plus");
-const { v4: uuidv4 } = require("uuid");
 
 // Erstellen einer Express Router Instanz
 const router = express.Router();
@@ -10,13 +9,6 @@ const router = express.Router();
 // -------------------------------------------------------
 // Database Configuration
 // -------------------------------------------------------
-
-const dbSessionConfig = {
-  host: "my-app-mysql-service",
-  port: "33060",
-  user: "root",
-  password: "mysecretpw",
-};
 
 const dbConfig = {
   host: "my-app-mysql-service",
@@ -279,34 +271,6 @@ router.get("/popular/stores/:count", (req, res) => {
     res.send(error);
   }
 
-  console.log(
-    "Request: " + "Method=" + req.method + ", URL=" + req.originalUrl + "; Response: " + "Status=" + res.statusCode
-  );
-});
-
-// Router zum Anlegen eines neuen Gerichts
-router.post("/masterdata/dish", (req, res) => {
-  const dish = req.body;
-  console.log(dish);
-
-  // Eintrag in Datenbank hinzufügen
-  try {
-    mysqlx.getSession(dbSessionConfig).then(function (session) {
-      ordersTable = session.getSchema("popular").getTable("dishes");
-
-      // Einfügen der Daten in die Dishes-Tabelle
-      return ordersTable
-        .insert(["dish_id", "dish_name", "dish_price"])
-        .values([uuidv4(), dish.dish_name, dish.dish_price])
-        .execute();
-    });
-    res.sendStatus(200);
-  } catch (error) {
-    console.log(error);
-    res.send(error);
-  }
-
-  // Log req and res
   console.log(
     "Request: " + "Method=" + req.method + ", URL=" + req.originalUrl + "; Response: " + "Status=" + res.statusCode
   );

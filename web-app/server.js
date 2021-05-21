@@ -1,7 +1,9 @@
 const express = require("express");
 const path = require("path");
 const cors = require("cors");
+
 const apiRouter = require("./router");
+const maindataRouter = require("./server-routes/maindata-router");
 
 const app = express();
 const port = 5000;
@@ -22,6 +24,7 @@ app.use(express.static(path.join(__dirname, "client/build")));
 
 // Bereitstellen der Router
 app.use("/api", apiRouter);
+app.use("/api/maindata", maindataRouter);
 
 // Behandelt alle Anfragen, die nicht mit den oben genannten übereinstimmen
 app.get("*", (req, res) => {
