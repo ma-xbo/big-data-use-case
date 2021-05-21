@@ -36,7 +36,7 @@ function NewDishModal(props) {
 
   async function postNewDish() {
     const data = { dish_name: dishName, dish_price: Number(dishPrice) };
-    const url = "http://localhost:5000/api/masterdata/dish";
+    const url = "http://localhost:5000/api/maindata/dish";
     fetch(url, {
       method: "POST",
       headers: {

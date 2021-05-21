@@ -17,11 +17,11 @@ function MainDataView() {
   // Initial fetch of data
   useEffect(() => {
     fetchDishes();
+    fetchStores();
   }, []);
 
   async function fetchDishes() {
-    const maxDishes = 10;
-    const url = "http://localhost:5000/api/popular/dishes/" + maxDishes; //TODO
+    const url = "http://localhost:5000/api/maindata/dishes";
     fetch(url)
       .then((response) => response.json())
       .then((data) => {
@@ -57,6 +57,39 @@ function MainDataView() {
       });
   }
 
+  async function fetchStores() {
+    const url = "http://localhost:5000/api/maindata/stores";
+    fetch(url)
+      .then((response) => response.json())
+      .then((data) => {
+        const stores = data.stores;
+        const isCached = data.cached;
+        setStores(stores);
+
+        let alerText = "";
+        isCached
+          ? (alerText = "Die angelegten Restaurants wurden aus dem Cache geladen")
+          : (alerText = "Die angelegten Restaurants wurden aus der Datenbank geladen");
+
+        stickyAlert({
+          title: "Restaurants wurden geladen",
+          content: alerText,
+          dismissible: true,
+          color: "success",
+          timeShown: 3000,
+        });
+      })
+      .catch((error) => {
+        stickyAlert({
+          title: "Fehler aufgetreten",
+          content: error,
+          dismissible: true,
+          color: "danger",
+          timeShown: 5000,
+        });
+      });
+  }
+
   return (
     <ViewContainer title="Übersicht der Stammdaten">
       <NewDishModal isOpen={isNewDishModalOpen} onClose={() => setIsNewDishModalOpen(false)} />
@@ -70,13 +103,7 @@ function MainDataView() {
           <div className="col-12 col-xl-6 pr-5">
             <h5>Auflistung der angelegten Gerichte</h5>
             <span className="d-flex flex-row justify-content-start align-items-center my-10">
-              <button
-                className="btn btn-square mr-5"
-                type="button"
-                onClick={() => {
-                  fetchDishes();
-                }}
-              >
+              <button className="btn btn-square mr-5" type="button" onClick={fetchDishes}>
                 <i className="ri-refresh-line"></i>
               </button>
               <button
@@ -97,14 +124,7 @@ function MainDataView() {
           <div className="col-12 col-xl-6 pl-5">
             <h5>Auflistung der angelegten Restaurants</h5>
             <span className="d-flex flex-row justify-content-start align-items-center my-10">
-              <button
-                className="btn btn-square mr-5"
-                type="button"
-                onClick={() => {
-                  //TODO
-                  //fetchDishes();
-                }}
-              >
+              <button className="btn btn-square mr-5" type="button" onClick={fetchStores}>
                 <i className="ri-refresh-line"></i>
               </button>
               <button
@@ -132,7 +152,6 @@ const columnsDishes = [
   { key: "dish_id", name: "ID" },
   { key: "dish_name", name: "Name" },
   { key: "dish_price", name: "Preis" },
-  { key: "count", name: "Anzahl" },
 ];
 
 const columnsStores = [
@@ -140,7 +159,6 @@ const columnsStores = [
   { key: "store_name", name: "Name" },
   { key: "store_lat", name: "Latitude" },
   { key: "store_lon", name: "Longitude" },
-  { key: "count", name: "Anzahl" },
 ];
 
 export default MainDataView;

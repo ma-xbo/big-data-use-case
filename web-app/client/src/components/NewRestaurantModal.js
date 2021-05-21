@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import classNames from "classnames";
+
+import { stickyAlert } from "../helper/stickyAlert";
 import CustomModal from "./CustomModal";
 
 function NewRestaurantModal(props) {
@@ -47,11 +49,40 @@ function NewRestaurantModal(props) {
 
   async function postNewDish() {
     const data = { store_name: storeName, store_lat: storeLat, store_lon: storeLon };
-    console.log(data);
-    onClose();
-    setStoreName("");
-    setStoreLat(0.0);
-    setStoreLon(0.0);
+    const url = "http://localhost:5000/api/maindata/store";
+    fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    })
+      .then((response) => {
+        if (response.status === 200) {
+          stickyAlert({
+            title: "Neues Restaurant angelegt",
+            content: 'Das Restaurant "' + storeName + '" wurde erfolgreich in der Datenbank gespeichert',
+            dismissible: true,
+            color: "success",
+            timeShown: 3000,
+          });
+          onClose();
+          setStoreName("");
+          setStoreLat(0.0);
+          setStoreLon(0.0);
+        } else {
+          stickyAlert({
+            title: "Fehler aufgetreten",
+            content: "Beim Versuch die Daten zu speichern ist ein Fehler aufgetreten",
+            dismissible: true,
+            color: "danger",
+            timeShown: 3000,
+          });
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
   }
 
   return (
