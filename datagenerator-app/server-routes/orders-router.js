@@ -60,8 +60,8 @@ async function sendTrackingMessage(data) {
 // Erstellen eines neuen Events (wird von Data Generator Service aufgerufen)
 router.get("/addorder", async (req, res) => {
   try {
-    const dishes = (await axios.get("http://localhost:3000/api/masterdata/dishes")).data;
-    const stores = (await axios.get("http://localhost:3000/api/masterdata/stores")).data;
+    const dishes = (await axios.get("http://localhost:3000/api/masterdata/dishes")).data.dishes;
+    const stores = (await axios.get("http://localhost:3000/api/masterdata/stores")).data.stores;
 
     const orderId = uuidv4();
     const dishId = dishes[Math.floor(Math.random() * dishes.length)].dish_id;
@@ -86,11 +86,10 @@ router.get("/addorder", async (req, res) => {
       timestamp: timestamp_kafka,
     };
 
-
     //TODO -> Das Hinzufügen der Order in die DB über den Data Generator wird später entfernt
-    //     -> Die Funktion wird später von Kafka/Spark übernommen  
+    //     -> Die Funktion wird später von Kafka/Spark übernommen
     // Hinzufügen der Bestellung in die orders Tabelle der Datenbank
-/*     mysqlx.getSession(dbSessionConfig).then(function (session) {
+    /*     mysqlx.getSession(dbSessionConfig).then(function (session) {
       // Zugriff auf die Orders-Tabelle
       ordersTable = session.getSchema("popular").getTable("orders");
 
@@ -123,33 +122,5 @@ router.get("/addorder", async (req, res) => {
     "Request: " + "Method=" + req.method + ", URL=" + req.originalUrl + "; Response: " + "Status=" + res.statusCode
   );
 });
-
-// Temporär zum Erstellen einer Kafka Meldung
-/* router.get("/addorderkafka", async (req, res) => {
-  const stores = (await axios.get("http://localhost:3000/api/masterdata/stores")).data;
-  const dishes = (await axios.get("http://localhost:3000/api/masterdata/dishes")).data;
-
-  const order = {
-    order_id: uuidv4(),
-    store_id: stores[Math.floor(Math.random() * stores.length)].store_id,
-    dish_id: dishes[Math.floor(Math.random() * dishes.length)].dish_id,
-    timestamp: Math.floor(new Date() / 1000),
-  };
-
-  // Send the tracking message to Kafka
-  sendTrackingMessage(order)
-    .then(() => {
-      console.log("Sent to kafka");
-      res.send(order);
-    })
-    .catch((e) => {
-      console.log("Error sending to kafka", e);
-      res.sendStatus(500);
-    });
-
-  console.log(
-    "Request: " + "Method=" + req.method + ", URL=" + req.originalUrl + "; Response: " + "Status=" + res.statusCode
-  );
-}); */
 
 module.exports = router;
