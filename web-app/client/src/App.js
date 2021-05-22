@@ -7,6 +7,7 @@ import "remixicon/fonts/remixicon.css";
 import OrderListView from "./views/OrderListView";
 import OrderDetailsView from "./views/OrderDetailsView";
 import PopularView from "./views/PopularView";
+import MainDataView from "./views/MainDataView";
 
 function App() {
   // Import JS library
@@ -34,6 +35,11 @@ function App() {
                   Beliebt
                 </Link>
               </li>
+              <li className="nav-item">
+                <Link className="nav-link" to="/maindata">
+                  Stammdaten
+                </Link>
+              </li>
             </ul>
             <form className="form-inline d-none d-md-flex ml-auto">
               <button className="btn btn-square" type="button" onClick={() => halfmoon.toggleDarkMode()}>
@@ -55,6 +61,9 @@ function App() {
               </Route>
               <Route path="/popular">
                 <PopularView />
+              </Route>
+              <Route path="/maindata">
+                <MainDataView />
               </Route>
             </Switch>
           </div>
