@@ -26,11 +26,6 @@ async function executeQuery(query, data) {
   return await session.sql(query, data).bind(data).execute();
 }
 
-async function executeSimpleQuery(query) {
-  let session = await mysqlx.getSession(dbConfig);
-  return await session.sql(query).bind(data).execute();
-}
-
 // -------------------------------------------------------
 // Memcache Configuration
 // -------------------------------------------------------
@@ -48,7 +43,6 @@ module.exports = {
   dbConfig: dbConfig,
   dbSessionConfig: dbSessionConfig,
   executeQuery: executeQuery,
-  executeSimpleQuery: executeSimpleQuery,
   cacheDefaultTTL: cacheDefaultTTL,
   memcachedConfig: memcachedConfig,
 };

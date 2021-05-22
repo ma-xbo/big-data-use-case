@@ -1,12 +1,8 @@
 const express = require("express");
-const mysqlx = require("@mysql/xdevapi");
 const dns = require("dns").promises;
 const memcachePlus = require("memcache-plus");
 const {
-  dbConfig,
-  dbSessionConfig,
   executeQuery,
-  executeSimpleQuery,
   cacheDefaultTTL,
   memcachedConfig,
 } = require("./helper");
