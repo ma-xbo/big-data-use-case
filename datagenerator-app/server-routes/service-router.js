@@ -14,7 +14,7 @@ let timer = null;
 
 async function randomData() {
   const data = (await axios.get("http://localhost:3000/api/orders/addorder")).data;
-  console.log(data);
+  //console.log(data);
 }
 
 // ------------------------------------------------------------
