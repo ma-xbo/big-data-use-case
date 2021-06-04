@@ -124,17 +124,14 @@ router.get("/orders(/page/:page)?(/limit/:limit)?", (req, res) => {
 
   // Log req and res
   console.log(
-    "Request: " + "Method=" + req.method + ", URL=" + req.originalUrl + "; Response: " + "Status=" + res.statusCode
+    "Request: Method=" + req.method + ", URL=" + req.originalUrl + "; Response: Status=" + res.statusCode
   );
 });
 
 async function getOrderStatistics() {
-  //const query = `SELECT COUNT(order_id) FROM orders;`;
   const query = `SELECT COUNT(o.order_id) AS orderCount, AVG(d.dish_price) AS avgDishPrice
                   FROM orders o JOIN dishes d on o.dish_id = d.dish_id;`;
   let data = (await executeSimpleQuery(query)).fetchOne();
-
-  console.log(data);
 
   const result = {
     orderCount: data[0],
