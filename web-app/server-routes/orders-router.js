@@ -1,11 +1,7 @@
 const express = require("express");
 const dns = require("dns").promises;
 const memcachePlus = require("memcache-plus");
-const {
-  executeQuery,
-  cacheDefaultTTL,
-  memcachedConfig,
-} = require("./helper");
+const { executeQuery, executeSimpleQuery, cacheDefaultTTL, memcachedConfig } = require("./helper");
 
 // Erstellen einer Express Router Instanz
 const router = express.Router();
@@ -59,8 +55,8 @@ async function getFromCache(key) {
 // Routenhandler
 // ------------------------------------------------------------
 
-async function getOrdersList(maxCount, offset) {
-  const cacheKey = "ordersList";
+async function getOrdersListCached(maxCount, offset) {
+  const cacheKey = "ordersList-c" + maxCount + "-o" + offset;
   let result = await getFromCache(cacheKey);
   let cached = false;
   console.log("Checking cache key " + cacheKey);
@@ -93,8 +89,27 @@ async function getOrdersList(maxCount, offset) {
     console.log("Serving " + cacheKey + " from cache");
     cached = true;
   }
-  //TODO
-  //return { orders: result, cached: cached };
+  return { orders: result, cached: cached };
+}
+
+async function getOrdersList(maxCount, offset) {
+  const query = `SELECT o.order_id, d.dish_name, d.dish_price, s.store_name, s.store_lat, s.store_lon, o.timestamp
+                     FROM orders o
+                              JOIN dishes d on o.dish_id = d.dish_id
+                              JOIN stores s ON s.store_id = o.store_id
+                     ORDER BY o.timestamp DESC LIMIT ?
+                     OFFSET ?`;
+  result = (await executeQuery(query, [maxCount, offset])).fetchAll().map((row) => ({
+    order_id: row[0].trim(),
+    dish_name: row[1],
+    dish_price: row[2],
+    store_name: row[3],
+    store_area: "Zone XYZ", // ToDo: DB? Generator?
+    store_lat: row[4],
+    store_lon: row[5],
+    timestamp: row[6],
+  }));
+
   return result;
 }
 
@@ -105,16 +120,33 @@ router.get("/orders(/page/:page)?(/limit/:limit)?", (req, res) => {
   const offset = parseInt(req.params.page ? limit * (req.params.page - 1) : 0);
 
   // Use DB query and return data as JSON
-  getOrdersList(limit, offset).then((data) => res.json(data));
+  getOrdersListCached(limit, offset).then((data) => res.json(data));
 
   // Log req and res
-  console.log(
-    "Request: " + "Method=" + req.method + ", URL=" + req.originalUrl + "; Response: " + "Status=" + res.statusCode
-  );
+  console.log("Request: Method=" + req.method + ", URL=" + req.originalUrl + "; Response: Status=" + res.statusCode);
+});
+
+async function getOrderStatistics() {
+  const query = `SELECT COUNT(o.order_id) AS orderCount, AVG(d.dish_price) AS avgDishPrice
+                  FROM orders o JOIN dishes d on o.dish_id = d.dish_id;`;
+  let data = (await executeSimpleQuery(query)).fetchOne();
+
+  const result = {
+    orderCount: data[0],
+    avgDishPrice: data[1],
+  };
+
+  return result;
+}
+
+// Zurückgeben der Anzahl an Bestellungen
+router.get("/orders/statistics", (req, res) => {
+  getOrderStatistics().then((data) => res.json(data));
+
+  console.log("Request: Method=" + req.method + ", URL=" + req.originalUrl + "; Response: Status=" + res.statusCode);
 });
 
 async function getSingleOrder(orderId) {
-  console.log("getOrder()");
   const query = `SELECT o.order_id, d.dish_name, d.dish_price, s.store_name, s.store_lat, s.store_lon, o.timestamp
                      FROM orders o
                               JOIN dishes d on o.dish_id = d.dish_id
@@ -133,7 +165,6 @@ async function getSingleOrder(orderId) {
     timestamp: data[6],
   };
 
-  console.log(result);
   return result;
 }
 
@@ -143,9 +174,7 @@ router.get("/order/:order_id", (req, res) => {
 
   getSingleOrder(orderId).then((data) => res.json(data));
 
-  console.log(
-    "Request: " + "Method=" + req.method + ", URL=" + req.originalUrl + "; Response: " + "Status=" + res.statusCode
-  );
+  console.log("Request: Method=" + req.method + ", URL=" + req.originalUrl + "; Response: Status=" + res.statusCode);
 });
 
 module.exports = router;
