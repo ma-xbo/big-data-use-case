@@ -1,11 +1,7 @@
 const express = require("express");
 const dns = require("dns").promises;
 const memcachePlus = require("memcache-plus");
-const {
-  executeQuery,
-  cacheDefaultTTL,
-  memcachedConfig,
-} = require("./helper");
+const { executeQuery, executeSimpleQuery, cacheDefaultTTL, memcachedConfig } = require("./helper");
 
 // Erstellen einer Express Router Instanz
 const router = express.Router();
@@ -113,8 +109,30 @@ router.get("/orders(/page/:page)?(/limit/:limit)?", (req, res) => {
   );
 });
 
+async function getOrderStatistics() {
+  //const query = `SELECT COUNT(order_id) FROM orders;`;
+  const query = `SELECT COUNT(o.order_id) AS orderCount, AVG(d.dish_price) AS avgDishPrice
+                  FROM orders o JOIN dishes d on o.dish_id = d.dish_id;`;
+  let data = (await executeSimpleQuery(query)).fetchOne();
+
+  console.log(data);
+
+  const result = {
+    orderCount: data[0],
+    avgDishPrice: data[1],
+  };
+
+  return result;
+}
+
+// Zurückgeben der Anzahl an Bestellungen
+router.get("/orders/statistics", (req, res) => {
+  getOrderStatistics().then((data) => res.json(data));
+
+  console.log("Request: Method=" + req.method + ", URL=" + req.originalUrl + "; Response: Status=" + res.statusCode);
+});
+
 async function getSingleOrder(orderId) {
-  console.log("getOrder()");
   const query = `SELECT o.order_id, d.dish_name, d.dish_price, s.store_name, s.store_lat, s.store_lon, o.timestamp
                      FROM orders o
                               JOIN dishes d on o.dish_id = d.dish_id
@@ -133,7 +151,6 @@ async function getSingleOrder(orderId) {
     timestamp: data[6],
   };
 
-  console.log(result);
   return result;
 }
 
@@ -143,9 +160,7 @@ router.get("/order/:order_id", (req, res) => {
 
   getSingleOrder(orderId).then((data) => res.json(data));
 
-  console.log(
-    "Request: " + "Method=" + req.method + ", URL=" + req.originalUrl + "; Response: " + "Status=" + res.statusCode
-  );
+  console.log("Request: Method=" + req.method + ", URL=" + req.originalUrl + "; Response: Status=" + res.statusCode);
 });
 
 module.exports = router;
