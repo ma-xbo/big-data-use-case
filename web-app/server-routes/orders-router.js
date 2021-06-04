@@ -123,9 +123,7 @@ router.get("/orders(/page/:page)?(/limit/:limit)?", (req, res) => {
   getOrdersListCached(limit, offset).then((data) => res.json(data));
 
   // Log req and res
-  console.log(
-    "Request: Method=" + req.method + ", URL=" + req.originalUrl + "; Response: Status=" + res.statusCode
-  );
+  console.log("Request: Method=" + req.method + ", URL=" + req.originalUrl + "; Response: Status=" + res.statusCode);
 });
 
 async function getOrderStatistics() {
