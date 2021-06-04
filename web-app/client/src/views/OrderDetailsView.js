@@ -10,34 +10,47 @@ function OrderDetailsView(props) {
   const [orderDetails, setOrderDetails] = useState();
 
   useEffect(() => {
-    async function fetchData() {
-      const url = "http://localhost:5000/api/order/" + order_id;
-      await fetch(url)
-        .then((response) => response.json())
-        .then((data) => {
-          data.dish_price = data.dish_price.toFixed(2) + "€";
-          data.timestamp = new Date(data.timestamp).toLocaleString();
-          setOrderDetails(data);
-          stickyAlert({
-            title: "Informationen geladen",
-            content: "Die Details zu der Bestellung wurden geladen",
-            dismissible: true,
-            color: "success",
-            timeShown: 3000,
-          });
-        })
-        .catch((error) => {
-          stickyAlert({
-            title: "Fehler aufgetreten",
-            content: error,
-            dismissible: true,
-            color: "danger",
-            timeShown: 5000,
-          });
-        });
-    }
-    fetchData();
+    fetchOrderData();
   }, []);
+
+  async function fetchOrderData() {
+    const url = "http://localhost:5000/api/order/" + order_id;
+    await fetch(url)
+      .then((response) => response.json())
+      .then((data) => {
+        const dateOptions = {
+          year: "numeric",
+          month: "numeric",
+          day: "numeric",
+          weekday: "long",
+          hour: "numeric",
+          minute: "numeric",
+          second: "numeric",
+          hour12: false,
+        };
+
+        data.dish_price = data.dish_price.toFixed(2) + "€";
+        data.timestamp = new Date(data.timestamp).toLocaleString("de-DE", dateOptions);
+        setOrderDetails(data);
+
+        stickyAlert({
+          title: "Informationen geladen",
+          content: "Die Details zu der Bestellung wurden geladen",
+          dismissible: true,
+          color: "success",
+          timeShown: 3000,
+        });
+      })
+      .catch((error) => {
+        stickyAlert({
+          title: "Fehler aufgetreten",
+          content: error,
+          dismissible: true,
+          color: "danger",
+          timeShown: 5000,
+        });
+      });
+  }
 
   return (
     <ViewContainer title="Details der Bestellung">
@@ -47,16 +60,16 @@ function OrderDetailsView(props) {
             <div className="col-12 col-xl-6 pr-5">
               <table className="table table-hover">
                 <tbody>
-                  {Object.keys(orderDetails).map((key) => (
+                  {Object.keys(orderDetails).map((orderKey) => (
                     <tr>
-                      <th>{key}</th>
-                      <td>{orderDetails[key]}</td>
+                      <th>{nameKeys.find(({ key }) => key === orderKey).name}</th>
+                      <td>{orderDetails[orderKey]}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
-            <div className="col-12 col-xl-6 pl-5">
+            <div className="col-12 col-xl-6 pl-5" style={{ zIndex: 1 }}>
               <MapContainer
                 center={[orderDetails.store_lat, orderDetails.store_lon]}
                 zoom={13}
@@ -80,5 +93,16 @@ function OrderDetailsView(props) {
     </ViewContainer>
   );
 }
+
+const nameKeys = [
+  { key: "order_id", name: "Bestellnummer" },
+  { key: "dish_name", name: "Gericht" },
+  { key: "dish_price", name: "Preis" },
+  { key: "store_name", name: "Geschäft" },
+  { key: "store_area", name: "Zone" },
+  { key: "store_lat", name: "Latitude" },
+  { key: "store_lon", name: "Longitude" },
+  { key: "timestamp", name: "Zeitpunkt" },
+];
 
 export default OrderDetailsView;
