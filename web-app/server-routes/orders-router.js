@@ -55,8 +55,8 @@ async function getFromCache(key) {
 // Routenhandler
 // ------------------------------------------------------------
 
-async function getOrdersList(maxCount, offset) {
-  const cacheKey = "ordersList";
+async function getOrdersListCached(maxCount, offset) {
+  const cacheKey = "ordersList-c" + maxCount + "-o" + offset;
   let result = await getFromCache(cacheKey);
   let cached = false;
   console.log("Checking cache key " + cacheKey);
@@ -89,8 +89,27 @@ async function getOrdersList(maxCount, offset) {
     console.log("Serving " + cacheKey + " from cache");
     cached = true;
   }
-  //TODO
-  //return { orders: result, cached: cached };
+  return { orders: result, cached: cached };
+}
+
+async function getOrdersList(maxCount, offset) {
+  const query = `SELECT o.order_id, d.dish_name, d.dish_price, s.store_name, s.store_lat, s.store_lon, o.timestamp
+                     FROM orders o
+                              JOIN dishes d on o.dish_id = d.dish_id
+                              JOIN stores s ON s.store_id = o.store_id
+                     ORDER BY o.timestamp DESC LIMIT ?
+                     OFFSET ?`;
+  result = (await executeQuery(query, [maxCount, offset])).fetchAll().map((row) => ({
+    order_id: row[0].trim(),
+    dish_name: row[1],
+    dish_price: row[2],
+    store_name: row[3],
+    store_area: "Zone XYZ", // ToDo: DB? Generator?
+    store_lat: row[4],
+    store_lon: row[5],
+    timestamp: row[6],
+  }));
+
   return result;
 }
 
@@ -101,7 +120,7 @@ router.get("/orders(/page/:page)?(/limit/:limit)?", (req, res) => {
   const offset = parseInt(req.params.page ? limit * (req.params.page - 1) : 0);
 
   // Use DB query and return data as JSON
-  getOrdersList(limit, offset).then((data) => res.json(data));
+  getOrdersListCached(limit, offset).then((data) => res.json(data));
 
   // Log req and res
   console.log(
