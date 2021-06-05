@@ -45,8 +45,11 @@ router.get("/addorder", async (req, res) => {
     const orderId = uuidv4();
     const selectedDishIndex = Math.floor(Math.random() * dishes.length);
     const dishId = dishes[selectedDishIndex].dish_id;
+    const dishName = dishes[selectedDishIndex].dish_name;
     const dishPrice = dishes[selectedDishIndex].dish_price;
-    const storeId = stores[Math.floor(Math.random() * stores.length)].store_id;
+    const selectedStoreIndex = Math.floor(Math.random() * stores.length);
+    const storeId = stores[Math.floor(selectedStoreIndex)].store_id;
+    const storeName = stores[Math.floor(selectedStoreIndex)].store_name;
 
     const date = new Date();
     const timestamp_kafka = Math.floor(date / 1000); // Format für Kafka
@@ -69,8 +72,18 @@ router.get("/addorder", async (req, res) => {
         res.sendStatus(500);
       });
 
+    const orderData = {
+      order_id: orderId,
+      dish_name: dishName,
+      store_name: storeName,
+      timestamp: timestamp_kafka,
+    };
+
+    const webSocketServer = req.app.locals.ws;
+    webSocketServer.send(JSON.stringify(orderData));
+
     // Zurückgeben der erstellten Bestellung
-    res.send(order_kafka);
+    res.send(orderData);
   } catch (error) {
     console.log(error);
     res.sendStatus(error);

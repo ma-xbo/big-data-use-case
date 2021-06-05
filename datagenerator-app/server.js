@@ -1,6 +1,8 @@
 const express = require("express");
 const path = require("path");
 const cors = require("cors");
+const WebSocket = require("ws");
+const http = require("http");
 const serviceRouter = require("./server-routes/service-router");
 const ordersRouter = require("./server-routes/orders-router");
 const masterdataRouter = require("./server-routes/masterdata-router");
@@ -11,6 +13,16 @@ const masterdataRouter = require("./server-routes/masterdata-router");
 
 const app = express();
 const port = 3000;
+const server = http.createServer(app);
+
+// ------------------------------------------------------------
+// WebSocket
+// ------------------------------------------------------------
+const wss = new WebSocket.Server({ server: server, path: "/api/orders/socket" });
+wss.on("connection", (ws) => {
+  console.log("establish websocket connection");
+  app.locals.ws = ws;
+});
 
 // Aktivieren von CORS für die React App auf Port 3000
 // Die React Build Version läuft über Port 3000 und muss nicht über CORS freigegeben werden
@@ -36,6 +48,6 @@ app.get("*", (req, res) => {
 });
 
 // Starten der App
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`App listening at http://localhost:${port}`);
 });
