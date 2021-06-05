@@ -14,7 +14,6 @@ let timer = null;
 
 async function randomData() {
   const data = (await axios.get("http://localhost:3000/api/orders/addorder")).data;
-  //console.log(data);
 }
 
 // ------------------------------------------------------------
@@ -26,9 +25,7 @@ router.get("/start", (req, res) => {
   timer = setInterval(randomData, sleepTimeMilliseconds);
   res.send("Starting to generate data");
 
-  console.log(
-    "Request: " + "Method=" + req.method + ", URL=" + req.originalUrl + "; Response: " + "Status=" + res.statusCode
-  );
+  console.log("Request: Method=" + req.method + ", URL=" + req.originalUrl + "; Response: Status=" + res.statusCode);
 });
 
 // Stoppen des Data Generator
@@ -37,9 +34,7 @@ router.get("/stop", (req, res) => {
   timer = null;
   res.send("Stopping to generate data");
 
-  console.log(
-    "Request: " + "Method=" + req.method + ", URL=" + req.originalUrl + "; Response: " + "Status=" + res.statusCode
-  );
+  console.log("Request: Method=" + req.method + ", URL=" + req.originalUrl + "; Response: Status=" + res.statusCode);
 });
 
 // Ausgeben des Status des Data Generator
@@ -49,9 +44,7 @@ router.get("/status", (req, res) => {
   };
   res.send(statusObj);
 
-  console.log(
-    "Request: " + "Method=" + req.method + ", URL=" + req.originalUrl + "; Response: " + "Status=" + res.statusCode
-  );
+  console.log("Request: Method=" + req.method + ", URL=" + req.originalUrl + "; Response: Status=" + res.statusCode);
 });
 
 // Ausgeben des Konfiguration des Data Generator
@@ -61,9 +54,7 @@ router.get("/config", (req, res) => {
   };
   res.send(configObj);
 
-  console.log(
-    "Request: " + "Method=" + req.method + ", URL=" + req.originalUrl + "; Response: " + "Status=" + res.statusCode
-  );
+  console.log("Request: Method=" + req.method + ", URL=" + req.originalUrl + "; Response: Status=" + res.statusCode);
 });
 
 // Ändern der Konfiguration des Data Generator
@@ -77,9 +68,7 @@ router.post("/config", function (req, res) {
     res.sendStatus(401);
   }
 
-  console.log(
-    "Request: " + "Method=" + req.method + ", URL=" + req.originalUrl + "; Response: " + "Status=" + res.statusCode
-  );
+  console.log("Request: Method=" + req.method + ", URL=" + req.originalUrl + "; Response: Status=" + res.statusCode);
 });
 
 module.exports = router;

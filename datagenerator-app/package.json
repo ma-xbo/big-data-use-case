@@ -16,7 +16,8 @@
     "kafkajs": "^1.15.0",
     "memcache-plus": "^0.2.22",
     "moment": "^2.29.1",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "ws": "^7.4.6"
   },
   "devDependencies": {
     "nodemon": "^2.0.7"

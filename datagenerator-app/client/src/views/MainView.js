@@ -8,16 +8,32 @@ function MainView() {
   const [serviceRunning, setServiceRunning] = useState();
   const [eventsPerMinute, setEventsPerMinute] = useState(30);
   const [dataArray, setDataArray] = useState([]);
+  const [isOutputVisible, setIsOutputVisible] = useState(false);
 
   // Initialen Status prüfen
   useEffect(() => {
     checkServiceRunning();
     getDataGeneratorConfig();
+    wsData();
   }, []);
 
   // ------------------------------------------------------------
   // Funktionen
   // ------------------------------------------------------------
+
+  function wsData() {
+    const ws = new WebSocket("ws://localhost:3000/api/orders/socket");
+    // websocket -> Aufbau der Verbindung
+    ws.onopen = () => {
+      console.log("connected websocket main component");
+    };
+
+    // websocket -> Empfangen einer Nachricht
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      setDataArray((oldArray) => [...oldArray, data]);
+    };
+  }
 
   async function checkServiceRunning() {
     const url = "http://localhost:3000/api/service/status";
@@ -78,14 +94,15 @@ function MainView() {
     fetch(url)
       .then((response) => response.json())
       .then((data) => {
-        setDataArray((oldArray) => [...oldArray, data]);
-        console.log(data);
+        //setDataArray((oldArray) => [...oldArray, data]);
+        //console.log(data);
       });
   }
 
   // ------------------------------------------------------------
   // Return
   // ------------------------------------------------------------
+
   return (
     <ViewContainer title="Übersicht des Data Generator">
       <p>
@@ -207,19 +224,60 @@ function MainView() {
         </DashboardItemContent>
       </DashboardContainer>
 
-      <div className="card">
-        <h2 className="card-title">Erstellte Burst Events</h2>
-        {dataArray.map((item) => (
-          <span className="d-flex flex-row justify-content-start align-items-center">
-            <i className="ri-profile-line"></i>
-            <p>{item.order_id}</p>
-            <i className="ri-time-line ml-10"></i>
-            <p>{new Date(item.timestamp).toLocaleString()}</p>
+      <div className="card p-15">
+        <span className="d-flex align-items-start justify-content-between">
+          <h2 className="card-title">Ausgabe der erstellten Events</h2>
+          <span className="d-flex flex-row">
+            <button
+              className="btn btn-danger d-flex flex-row justify-content-center align-items-center"
+              type="button"
+              onClick={() => setDataArray([])}
+            >
+              <i className="ri-delete-bin-2-line mr-5"></i>
+              <p>Liste leeren</p>
+            </button>
+            <button
+              className="btn btn-square rounded-circle ml-20"
+              type="button"
+              onClick={() => setIsOutputVisible((state) => !state)}
+            >
+              {isOutputVisible ? (
+                <i className="ri-arrow-drop-down-fill"></i>
+              ) : (
+                <i className="ri-arrow-drop-left-line"></i>
+              )}
+            </button>
           </span>
-        ))}
+        </span>
+        {isOutputVisible && (
+          <div className="overflow-auto w-full h-400">
+            {dataArray.map((item) => (
+              <span className="d-flex flex-row justify-content-start align-items-center">
+                <i className="ri-profile-line"></i>
+                <p>{item.order_id}</p>
+                <i className="ri-restaurant-2-line ml-10"></i>
+                <p>{item.dish_name}</p>
+                <i className="ri-store-3-fill ml-10"></i>
+                <p>{item.store_name}</p>
+                <i className="ri-time-line ml-10"></i>
+                <p>{new Date(item.timestamp * 1000).toLocaleString("de-DE", dateOptions)}</p>
+              </span>
+            ))}
+          </div>
+        )}
       </div>
     </ViewContainer>
   );
 }
+
+const dateOptions = {
+  year: "numeric",
+  month: "numeric",
+  day: "numeric",
+  hour: "numeric",
+  minute: "numeric",
+  second: "numeric",
+  hour12: false,
+};
 
 export default MainView;
