@@ -31,7 +31,6 @@ function MainView() {
     // websocket -> Empfangen einer Nachricht
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      console.log(data);
       setDataArray((oldArray) => [...oldArray, data]);
     };
   }
