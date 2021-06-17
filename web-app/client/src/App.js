@@ -15,7 +15,7 @@ function App() {
   halfmoon.onDOMContentLoaded();
 
   return (
-    <Router>
+    <Router basename="/orders">
       <div className="App">
         <div className="page-wrapper with-navbar">
           <div id="halfmoon-stickyalerts-container" className="sticky-alerts" />
