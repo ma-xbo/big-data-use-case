@@ -26,10 +26,10 @@ deploy:
     manifests:
       - k8s/*.yaml
 
-portForward:
-  - resourceType: Deployment
-    resourceName: web-app
-    port: 5000
-  - resourceType: Deployment
-    resourceName: datagenerator-app
-    port: 3000
+#portForward:
+#  - resourceType: Deployment
+#    resourceName: web-app
+#    port: 5000
+#  - resourceType: Deployment
+#    resourceName: datagenerator-app
+#    port: 3000
