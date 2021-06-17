@@ -2,7 +2,6 @@ const express = require("express");
 const path = require("path");
 const cors = require("cors");
 
-const apiRouter = require("./router");
 const maindataRouter = require("./server-routes/maindata-router");
 const popularRouter = require("./server-routes/popular-router");
 const ordersRouter = require("./server-routes/orders-router");
@@ -25,7 +24,6 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, "client/build")));
 
 // Bereitstellen der Router
-//app.use("/api", apiRouter);
 app.use("/api/maindata", maindataRouter);
 app.use("/api/popular", popularRouter);
 app.use("/api", ordersRouter);

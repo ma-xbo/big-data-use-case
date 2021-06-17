@@ -38,10 +38,9 @@ WORKDIR /webapp
 COPY package.json .
 RUN npm install
 
-# Add 'server.js' and 'router.js' to directory 'webapp' of container
+# Add 'server.js' and 'server-routes' to directory 'webapp' of container
 COPY server.js .
 COPY server-routes ./server-routes
-COPY router.js .
 
 # Copy directory 'build' from intermediate docker image to path '/webapp/client/build' in final docker image
 COPY --from=builder /reactapp/build /webapp/client/build
