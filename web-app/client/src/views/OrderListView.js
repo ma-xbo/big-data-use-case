@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 
+import { ordersBasePath } from "../helper/config";
 import { stickyAlert } from "../helper/stickyAlert";
 import ViewContainer from "../components/ViewContainer";
 import DashboardContainer from "../components/DashboardContainer";
@@ -26,12 +27,10 @@ function OrderListView() {
 
   // Laden der Bestellungen
   async function fetchOrders() {
-    const url = "http://localhost:5000/api/orders/page/" + currentPage + "/limit/" + ordersPerPage;
-    console.log(url);
+    const url = ordersBasePath + "/api/orders/page/" + currentPage + "/limit/" + ordersPerPage;
     await fetch(url)
       .then((response) => response.json())
       .then((data) => {
-        console.log(data);
         const orders = data.orders;
 
         orders.map((row) => {
@@ -63,7 +62,7 @@ function OrderListView() {
 
   // Laden der Statistiken zu den Bestellungen
   async function fetchOrderStatistics() {
-    const url = "http://localhost:5000/api/orders/statistics";
+    const url = ordersBasePath + "/api/orders/statistics";
     fetch(url)
       .then((response) => response.json())
       .then((data) => {

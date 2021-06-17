@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 
+import { ordersBasePath } from "../helper/config";
 import { stickyAlert } from "../helper/stickyAlert";
 import ViewContainer from "../components/ViewContainer";
 import DashboardContainer from "../components/DashboardContainer";
@@ -21,7 +22,7 @@ function MainDataView() {
   }, []);
 
   async function fetchDishes() {
-    const url = "http://localhost:5000/api/maindata/dishes";
+    const url = ordersBasePath + "/api/maindata/dishes";
     fetch(url)
       .then((response) => response.json())
       .then((data) => {
@@ -58,7 +59,7 @@ function MainDataView() {
   }
 
   async function fetchStores() {
-    const url = "http://localhost:5000/api/maindata/stores";
+    const url = ordersBasePath + "/api/maindata/stores";
     fetch(url)
       .then((response) => response.json())
       .then((data) => {

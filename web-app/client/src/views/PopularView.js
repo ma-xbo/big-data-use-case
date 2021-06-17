@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import classNames from "classnames";
 
+import { ordersBasePath } from "../helper/config";
 import { useInterval } from "../helper/customHooks";
 import { stickyAlert } from "../helper/stickyAlert";
 import ViewContainer from "../components/ViewContainer";
@@ -31,7 +32,7 @@ function PopularView() {
 
   async function fetchPopularDishes() {
     const maxDishes = 10;
-    const url = "http://localhost:5000/api/popular/dishes/" + maxDishes;
+    const url = ordersBasePath + "/api/popular/dishes/" + maxDishes;
     fetch(url)
       .then((response) => response.json())
       .then((data) => {
@@ -69,7 +70,7 @@ function PopularView() {
 
   async function fetchPopularStores() {
     const maxStores = 10;
-    const url = "http://localhost:5000/api/popular/stores/" + maxStores;
+    const url = ordersBasePath + "/api/popular/stores/" + maxStores;
     fetch(url)
       .then((response) => response.json())
       .then((data) => {

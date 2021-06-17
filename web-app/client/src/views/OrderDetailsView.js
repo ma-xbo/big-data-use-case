@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 
+import { ordersBasePath } from "../helper/config";
 import { stickyAlert } from "../helper/stickyAlert";
 import ViewContainer from "../components/ViewContainer";
 
@@ -14,7 +15,7 @@ function OrderDetailsView(props) {
   }, []);
 
   async function fetchOrderData() {
-    const url = "http://localhost:5000/api/order/" + order_id;
+    const url = ordersBasePath + "/api/order/" + order_id;
     await fetch(url)
       .then((response) => response.json())
       .then((data) => {

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import classNames from "classnames";
 
+import { ordersBasePath } from "../helper/config";
 import { stickyAlert } from "../helper/stickyAlert";
 import CustomModal from "./CustomModal";
 
@@ -49,7 +50,7 @@ function NewRestaurantModal(props) {
 
   async function postNewDish() {
     const data = { store_name: storeName, store_lat: storeLat, store_lon: storeLon };
-    const url = "http://localhost:5000/api/maindata/store";
+    const url = ordersBasePath + "/api/maindata/store";
     fetch(url, {
       method: "POST",
       headers: {
