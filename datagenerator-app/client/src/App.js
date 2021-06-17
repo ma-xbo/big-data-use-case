@@ -13,7 +13,7 @@ function App() {
   halfmoon.onDOMContentLoaded();
 
   return (
-    <Router>
+    <Router basename="/simulator">
       <div className="App">
         <div className="page-wrapper with-navbar">
           <nav className="navbar">
@@ -42,6 +42,9 @@ function App() {
               </Route>
               <Route path="/overview">
                 <MainView />
+              </Route>
+              <Route path="*">
+                <Redirect to="/overview" />
               </Route>
             </Switch>
           </div>
