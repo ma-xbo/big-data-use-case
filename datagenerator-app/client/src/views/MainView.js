@@ -17,12 +17,14 @@ function MainView() {
     wsData();
   }, []);
 
+  const simulatorBasePath = window.location.protocol + "//" + window.location.host + "/simulator";
+
   // ------------------------------------------------------------
   // Funktionen
   // ------------------------------------------------------------
 
   function wsData() {
-    const ws = new WebSocket("ws://localhost:3000/api/orders/socket");
+    const ws = new WebSocket("ws://" + window.location.host + "/simulator/api/orders/socket");
     // websocket -> Aufbau der Verbindung
     ws.onopen = () => {
       console.log("connected websocket main component");
@@ -36,14 +38,14 @@ function MainView() {
   }
 
   async function checkServiceRunning() {
-    const url = "http://localhost:3000/api/service/status";
+    const url = simulatorBasePath + "/api/service/status";
     fetch(url)
       .then((response) => response.json())
       .then((data) => setServiceRunning(data.running));
   }
 
   async function startDataGenerator() {
-    const url = "http://localhost:3000/api/service/start";
+    const url = simulatorBasePath + "/api/service/start";
     fetch(url).then(() => {
       const maxTries = 3;
       for (let index = 0; index < maxTries; index++) {
@@ -55,7 +57,7 @@ function MainView() {
   }
 
   async function stopDataGenerator() {
-    const url = "http://localhost:3000/api/service/stop";
+    const url = simulatorBasePath + "/api/service/stop";
     fetch(url).then(() => {
       const maxTries = 3;
       for (let index = 0; index < maxTries; index++) {
@@ -67,7 +69,7 @@ function MainView() {
   }
 
   async function getDataGeneratorConfig() {
-    const url = "http://localhost:3000/api/service/config";
+    const url = simulatorBasePath + "/api/service/config";
     fetch(url)
       .then((response) => response.json())
       .then((data) => setEventsPerMinute((60 / data.sleepTimeMilliseconds) * 1000));
@@ -78,7 +80,7 @@ function MainView() {
       const data = { eventsPerMinute: eventsPerMinute };
 
       // Post-Request zum Ändern der Daten des Data Generator
-      const url = "http://localhost:3000/api/service/config";
+      const url = simulatorBasePath + "/api/service/config";
       await fetch(url, {
         method: "POST",
         headers: {
@@ -90,7 +92,7 @@ function MainView() {
   }
 
   async function createBurstEvent() {
-    const url = "http://localhost:3000/api/orders/addorder";
+    const url = simulatorBasePath + "/api/orders/addorder";
     fetch(url)
       .then((response) => response.json())
       .then((data) => {

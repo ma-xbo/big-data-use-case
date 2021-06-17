@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: popular-slides-spark-hadoop-conf
+  name: spark-popular-app-hadoop-conf
 data:
   # https://stackoverflow.com/questions/38482779/spark-submit-yarn-mode-hadoop-conf-dir-contents/38483127
   core-site.xml: |
@@ -164,22 +164,22 @@ data:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: popular-slides-spark
+  name: spark-popular-app
   labels:
-    app: popular-slides-spark
+    app: spark-popular-app
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: popular-slides-spark
+      app: spark-popular-app
   template:
     metadata:
       labels:
-        app: popular-slides-spark
+        app: spark-popular-app
     spec:
       containers:
-        - name: popular-slides-spark
-          image: farberg/popular-slides-spark
+        - name: spark-popular-app
+          image: spark-popular-app:latest
           # Mount the volume that has been populated by the init container
           env:
             - name: HADOOP_CONF_DIR
@@ -195,4 +195,4 @@ spec:
       volumes:
         - name: hadoop-conf-volume
           configMap:
-            name: popular-slides-spark-hadoop-conf
+            name: spark-popular-app-hadoop-conf

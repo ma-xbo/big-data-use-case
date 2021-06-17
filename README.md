@@ -20,25 +20,28 @@ Die nachfolgenden Schritte müssen einmalig durchgeführt werden, um das Projekt
 1. Starten von Minikube
 
    - Starten von Minikube mit Standardwerten: `minikube start`
-   - Starten von Minikube mit mehr RAM über Docker: `minikube start --memory 8192 --cpus 4 --driver=docker`
-   - Starten von Minikube mit mehr RAM über HyperV: `minikube start --memory 8192 --cpus 4 --driver=hyperv`
+   - Starten von Minikube mit mehr Ressourcen über Docker: `minikube start --memory 8192 --cpus 4 --driver=docker`
+   - Starten von Minikube mit mehr Ressourcen über HyperV: `minikube start --memory 8192 --cpus 4 --driver=hyperv`
 
-2. Strimzi.io Kafka operator erstellen und starten
+2. Aktivieren des Ingress Addons in Minikube
+
+    Hinweis: Auf Windows Systemen kann das Ingress Addon nicht in Verbindung mit Docker genutzt werden. Es empfiehlt sich HyperV zu nutzen. 
+
+    Der Befehl zum Aktivieren des Ingress addons lautet: `minikube addons enable ingress`
+
+3. Strimzi.io Kafka operator erstellen und starten
 
    - `helm repo add strimzi http://strimzi.io/charts/`
    - `helm install my-kafka-operator strimzi/strimzi-kafka-operator`
 
-3. Hadoop cluster with YARN (for checkpointing)
+4. Hadoop cluster with YARN (for checkpointing)
 
    - `helm repo add stable https://charts.helm.sh/stable`
    - `helm install --namespace=default --set hdfs.dataNode.replicas=1 --set yarn.nodeManager.replicas=1 --set hdfs.webhdfs.enabled=true my-hadoop-cluster stable/hadoop`
 
-4. Starten der Anwendung
+5. Starten der Anwendung
 
    - Befehl: `skaffold dev`
-   
-Alternativ:
-   - `skaffold run --port-forward=user --tail` zum Beenden muss dann der Befehl `skaffold delete` eingegeben werden
 
 Nachdem der use Case ein mal aufgebaut wurde, müssen nicht alle Schritte erneut durchlaufen werden. Wie der Use Case in den darauffolgenden Malen gestartet werden kann, ist nachfolgend beschrieben.
 
@@ -46,59 +49,60 @@ Nachdem der use Case ein mal aufgebaut wurde, müssen nicht alle Schritte erneut
 
 Das wiederholte Starten des Use Case geht deutlich schneller, als das initiale Starten. Dazu müssen die folgenden Schritte beachtet sein.
 
-1. Starten von Minikube
+1. Starten von Minikube: `minikube start`
+2. Starten der Anwendung: `skaffold dev`
 
-   - Starten von Minikube mit mehr RAM: `minikube start --memory 8192 --cpus 4 --driver=docker` oder `minikube start --memory 8192 --cpus 4 --driver=hyperv`
-
-2. Starten der Anwendung
-
-   - `skaffold dev`
-   - `skaffold run --port-forward=user --tail`
-
-## Prüfende Schritte
+## Zugriff auf die Webanwendungen
 
 Sobald das Minikube Cluster läuft, sollten die folgenden Schritte geprüft werden:
 
 - Laufen alle Pods, die für den Use Case benötigt werden? -> `kubectl get all`
 - Kann von Außen auf den Data Generator Pod zugegriffen werden? -> Weiterleitung des Ports oder Ingress
 - Kann von Außen auf den Web App Pod zugegriffen werden? -> Weiterleitung des Ports oder Ingress
-
-### Weiterleiten des Ports
-
-Die Ports der Komponenten des K8s Cluster können entweder manuell oder automatisiert weitergeleitet werden.
-
-#### Manueller Port-Forward über kubectl
-
-- Erreichen der Web App über den localhost: `kubectl port-forward service/web-app-service 5000:5000`
-- Erreichen des Data Generator über den localhost: `kubectl port-forward service/datagenerator-app-service 3000:3000`
+ 
+Um über das Ingress auf die Webanwendungen zugreifen zu können wird die IP Adresse benötigt. 
+Diese wird über den Befehl `minikube ip` ausgegeben.
+Auf die Bestellübersicht wird über den Pfad `<minikube-ip>/orders/list` zugegriffen.
+Auf den Datengenerator wird über den Pfad `<minikube-ip>/simulator/overview` zugegriffen.
 
 #### Automatisierter Port-Forward mit skaffold
 
-- Standard: `skaffold dev`
-- Entwicklung des Frontend (Build Prozess wird nicht jedes mal neu angestoßen): `skaffold run --port-forward=user --tail`
+In der Datei skaffold.yaml kann das forwarden der ports definiert werden. Dies wird dann automatisch durchgeführt. Nachfolgend ist der Ausschnitt einer skaffold.yaml Datei zu sehen in der Port-Forward definiert ist:
 
-Informationen:
+```yaml
+portForward:
+  - resourceType: Deployment
+    resourceName: web-app
+    port: 5000
+  - resourceType: Deployment
+    resourceName: datagenerator-app
+    port: 3000
+```
+
+Weitere Informationen zum Port-Forwarding:
 - https://skaffold.dev/docs/references/cli/
 - https://skaffold.dev/docs/pipeline-stages/port-forwarding/
 
-### Aktivieren des Ingress Addons (Gibt Fehlermeldung)
-
-- Verwenden des Befhels: `minikube addons enable ingress` -> Funktioniert nur bei Linux
-- `minikube tunnel`
+Unterschiedliche Befehle zum Starten der Anwendung mit Hilfe von Skaffold:
+- Standard: `skaffold dev`
+- Entwicklung des Frontend (Build Prozess wird nicht jedes mal neu angestoßen): `skaffold run --port-forward=user --tail` zum Beenden muss dann der Befehl `skaffold delete` eingegeben werden
 
 ## Befehle zum Managen des Clusters
-
-Eine Übersicht aller Kommandos zum Managen des Minikube Clusters finden Sie unter: https://minikube.sigs.k8s.io/docs/start/
 
 Nachfolgend sind häufig verwendete Kommandos aufgelistet:
 
 - `kubectl get all`
 - `kubectl get ingress`
 - `kubectl describe service/web-app-service`
+- `kubectl delete pod/AAA`
+- PowerShell Skript zum Aktualisieren des Pod Status `while (1) {cls; kubectl get pods;sleep 2}`
 
-### PowerShell Skript zum Aktualisieren des Pod Status
+#### Manueller Port-Forward zum Erreichen der Webanwendung mit Hilfe von kubectl
 
-Befehl: `while (1) {cls; kubectl get pods;sleep 2}`
+- Erreichen der Web App über den localhost: `kubectl port-forward service/web-app-service 5000:5000`
+- Erreichen des Data Generator über den localhost: `kubectl port-forward service/datagenerator-app-service 3000:3000`
+
+Eine Übersicht aller Kommandos zum Managen des Minikube Clusters finden Sie unter: https://minikube.sigs.k8s.io/docs/start/
 
 ### Überprüfen der Daten in MySql
 

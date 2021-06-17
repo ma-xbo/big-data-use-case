@@ -8,7 +8,7 @@ build:
   tagPolicy:
     sha256: {}
   artifacts:
-    - image: farberg/popular-slides-spark
+    - image: spark-popular-app
       context: spark-app
 
     - image: web-app
@@ -25,11 +25,3 @@ deploy:
   kubectl:
     manifests:
       - k8s/*.yaml
-
-portForward:
-  - resourceType: Deployment
-    resourceName: web-app
-    port: 5000
-  - resourceType: Deployment
-    resourceName: datagenerator-app
-    port: 3000
