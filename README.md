@@ -1,4 +1,11 @@
 # Beschreibung Big Data Use Case
+Um von außerhalb des Kubernetes Clusters auf die Webanwendung zugreifen zu können, kommt ein Ingress zum Einsatz. Ein Ingress stellt HTTP- und HTTPS Anfragen von außerhalb des Kubernetes Clusters zu den definierten Diensten innerhalb des Kubernetes Clusters durch. Das Routing des Datenverkehrs wird durch Regeln gesteuert, die auf der Ingress-Ressource definiert sind. Für die Erfüllung der Ingress Konfiguration wird ein Ingress Controller innerhalb des Kubernetes Clusters benötigt. In der Big Data Anwendung wird dazu der NGINX Ingress Controller eingesetzt.
+
+![image](https://user-images.githubusercontent.com/38072209/122688330-ec93ef00-d21b-11eb-85d9-db3eadeaebf2.png)
+
+Neben dem Ingress Controller und den Webanwendungen werden zusätzliche Komponenten für die Datenverarbeitung und -speicherung benötigt. Dazu zählt eine Apache Kafka Instanz, welche neue Bestellungen von dem Daten Generator in Form von Kafka Messages erhält. Mit Hilfe der Apache Spark Instanz werden die Kafka Messages gelesen, verarbeitet bzw. aufbereitet und anschließend in der MySQL Datenbank gespeichert. Die Webanwendung zur Darstellung der Bestellübersicht zeigt die durch die Spark Anwendung aufbereiteten Daten an. Zur Entlastung der Datenbank Instanz kommt zusätzlich ein Cache Server zum Einsatz.
+
+![image](https://user-images.githubusercontent.com/38072209/122688364-1fd67e00-d21c-11eb-915f-fed014d156e2.png)
 
 ## Prerequisite: Installation von Docker, Minikube, etc.
 
