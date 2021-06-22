@@ -40,6 +40,7 @@ function PopularView() {
         const isCached = data.cached;
         dishes.map((row) => {
           row.dish_price = row.dish_price.toFixed(2) + "€";
+          row.revenue = (row.revenue / 100).toFixed(2) + "€";
           return row;
         });
         setPopularDishes(dishes);
@@ -76,6 +77,10 @@ function PopularView() {
       .then((data) => {
         const stores = data.stores;
         const isCached = data.cached;
+        stores.map((row) => {
+          row.revenue = (row.revenue / 100).toFixed(2) + "€";
+          return row;
+        });
         setPopularStores(stores);
 
         let alerText = "";
@@ -193,18 +198,18 @@ function PopularView() {
 }
 
 const columnsPopularDishes = [
-  { key: "dish_id", name: "ID" },
   { key: "dish_name", name: "Name" },
   { key: "dish_price", name: "Preis" },
   { key: "count", name: "Anzahl" },
+  { key: "revenue", name: "Umsatz" },
 ];
 
 const columnsPopularStores = [
-  { key: "store_id", name: "ID" },
   { key: "store_name", name: "Name" },
   { key: "store_lat", name: "Latitude" },
   { key: "store_lon", name: "Longitude" },
   { key: "count", name: "Anzahl" },
+  { key: "revenue", name: "Umsatz" },
 ];
 
 export default PopularView;
